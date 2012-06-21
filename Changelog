@@ -1,0 +1,95 @@
+Changelog ownCloud
+
+-------------------------------
+Release  "4.0.2"
+June 11. 2012
+
+- Lot´s of gallery fixes
+- More 3rd party apps visible
+- Fixed update notifications
+- Several calendar fixes
+- Several XSS fixes in calendar
+- Several improvements in contacts
+- Fix intinite redirect during setup for windows hosts
+- Several XSS fixes in contacts
+- New user password salting
+- Several LDAP fixes
+- Fix doublicate emails in sharing
+- Improved compatibility with Android browser
+- Fixed calendar links
+- Fixed logging
+- Allow "/" in filenames
+- Updated translations
+- Fixed reverse proxy and custom hosts configuration
+- Fix contact photo editing
+- Don´t allow renaming, deleting and resharing of shared folder
+
+Download: http://owncloud.org/releases/owncloud-4.0.1.tar.bz2
+MD5: http://owncloud.org/releases/owncloud-4.0.1.tar.bz2.md5
+
+
+
+-------------------------------
+Release  "4.0.1"
+June 4. 2012
+
+- Verify if user exists when loggin (oc-863)
+- More efficient log file handling
+- PDO requirement check
+- Check if apps folder is writable
+- prevent division by zero problem during output of free space
+- better mysql error message
+- correctly configure ldap group backend  (oc-887)
+- sort users and groups (oc-779)
+- LDAP. correctly handle group filter (oc-867)
+- try to switch magic quotes of globally 
+- fix ategory error reporting (oc-874)
+- correctly handle reverse proxy / load balancer https handling
+- prevent session already started warning
+- fix the files breadcrumb
+- don´t try to use smtp auth if config files says no
+- fix versioning path
+- security: fix a XSS problem in calendar
+- make LDAP pqsql compatible
+- fix pqsql database migration
+- fix ldap config interface
+- support for LDAP "member"
+- don´t hardcode /tmp
+- fix potential security problem for requested apps parameter
+- fix notes in contacts properly
+- fix timezone detection
+- fix interti_id in calendar
+- set DB prefix for pqsql
+- security: fix a XSS problem in contacts
+- correctly encode caldav link
+- allow longer path in gallery
+- disable not compatible apps during upgrade
+- fix HEAD request for downloads
+- fix private link sharing via email
+- use UTC as default timezone
+- style fixes for tasks app
+
+Download: http://owncloud.org/releases/owncloud-4.0.1.tar.bz2
+MD5: http://owncloud.org/releases/owncloud-4.0.1.tar.bz2.md5
+
+
+-------------------------------
+Release  "4.0.0"
+May 22. 2012
+
+- versioning of files
+- server side encryption
+- drag and drop upload
+- theming
+- ODF file viewer
+- ownCloud Application APIs
+- migration and backup
+- tasks management
+- application store
+- lots of improvements
+
+Download: http://owncloud.org/releases/owncloud-4.0.0.tar.bz2
+MD5: http://owncloud.org/releases/owncloud-4.0.0.tar.bz2.md5
+
+
+
