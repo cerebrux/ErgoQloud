@@ -85,19 +85,15 @@ class OC_FileCache{
 			$root='';
 		}
 		$path=$root.$path;
-		if($path=='/'){
-			$parent=-1;
-		}else{
-			$parent=self::getFileId(dirname($path));
-		}
+		$parent=self::getParentId($path);
 		$id=self::getFileId($path);
+		if(isset(OC_FileCache::$savedData[$path])){
+			$data=array_merge(OC_FileCache::$savedData[$path],$data);
+			unset(OC_FileCache::$savedData[$path]);
+		}
 		if($id!=-1){
 			self::update($id,$data);
 			return;
-		}
-		if(isset(self::$savedData[$path])){
-			$data=array_merge($data,self::$savedData[$path]);
-			unset(self::$savedData[$path]);
 		}
 		if(!isset($data['size']) or !isset($data['mtime'])){//save incomplete data for the next time we write it
 			self::$savedData[$path]=$data;
@@ -133,7 +129,12 @@ class OC_FileCache{
 		$queryParts=array();
 		foreach(array('size','mtime','ctime','mimetype','encrypted','versioned','writable') as $attribute){
 			if(isset($data[$attribute])){
-				$arguments[]=$data[$attribute];
+				//Convert to int it args are false
+				if($data[$attribute] === false){
+					$arguments[] = 0;
+				}else{
+					$arguments[] = $data[$attribute];
+				}
 				$queryParts[]=$attribute.'=?';
 			}
 		}
@@ -266,6 +267,9 @@ class OC_FileCache{
 		}
 		$path=$root.$path;
 		$parent=self::getFileId($path);
+		if($parent==-1){
+			return array();
+		}
     $query=OC_DB::prepare('SELECT name,ctime,mtime,mimetype,size,encrypted,versioned,writable FROM *PREFIX*fscache WHERE parent=? AND (mimetype LIKE ? OR mimetype = ?)');
     $result=$query->execute(array($parent, $mimetype_filter.'%', 'httpd/unix-directory'))->fetchAll();
 		if(is_array($result)){

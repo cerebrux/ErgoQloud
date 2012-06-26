@@ -71,7 +71,7 @@ FileActions={
 				}
 				var html='<a href="#" class="action" style="display:none">';
 				if(img) { html+='<img src="'+img+'"/> '; }
-				html += name+'</a>';
+				html += t('files', name) +'</a>';
 				var element=$(html);
 				element.data('action',name);
 				element.click(function(event){
@@ -91,7 +91,11 @@ FileActions={
 			if(img.call){
 				img=img(file);
 			}
-			var html='<a href="#" original-title="Delete" class="action delete" style="display:none" />';
+			if ($('#dir').val().indexOf('Shared') != -1) {
+				var html='<a href="#" original-title="' + t('files', 'Unshare') + '" class="action delete" style="display:none" />';
+			} else  {
+				var html='<a href="#" original-title="' + t('files', 'Delete') + '" class="action delete" style="display:none" />';
+			}
 			var element=$(html);
 			if(img){
 				element.append($('<img src="'+img+'"/>'));
@@ -137,7 +141,7 @@ $(document).ready(function(){
 		var downloadScope = 'file';
 	}
 	FileActions.register(downloadScope,'Download',function(){return OC.imagePath('core','actions/download')},function(filename){
-		window.location=OC.filePath('files', 'ajax', 'download.php') + '?files='+encodeURIComponent(filename)+'&dir='+encodeURIComponent($('#dir').val());
+		window.location=OC.filePath('files', 'ajax', 'download.php') + encodeURIComponent('?files='+encodeURIComponent(filename)+'&dir='+encodeURIComponent($('#dir').val()));
 	});
 });
 

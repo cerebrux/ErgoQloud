@@ -24,11 +24,21 @@
 				echo '/>';
 			?>
 		<?php endforeach; ?>
+		<script type="text/javascript">
+			$(function() {
+				requesttoken = '<?php echo $_['requesttoken']; ?>';
+				$(document).bind('ajaxSend', function(elm, xhr, s){
+					if(requesttoken) {
+						xhr.setRequestHeader('requesttoken', requesttoken);
+					}
+				});
+			});
+		</script>
 	</head>
 
 	<body id="<?php echo $_['bodyid'];?>">
 		<header><div id="header">
-			<a href="<?php echo link_to('', 'index.php'); ?>" title="" id="owncloud"><img class="svg" src="<?php echo image_path('', 'logo-wide.png'); ?>" alt="ownCloud" /></a>
+			<a href="<?php echo link_to('', 'index.php'); ?>" title="" id="owncloud"><img class="svg" src="<?php echo image_path('', 'logo-wide.svg'); ?>" alt="ownCloud" /></a>
 			<form class="searchbox" action="#" method="post">
 				<input id="searchbox" class="svg" type="search" name="query" value="<?php if(isset($_POST['query'])){echo htmlentities($_POST['query']);};?>" autocomplete="off" />
 			</form>

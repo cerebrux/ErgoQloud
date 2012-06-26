@@ -661,10 +661,12 @@ function ListView(element, calendar) {
 		if (delta) {
 			if (delta < 0){
 				addDays(t.start, -7);
+				addDays(t.end, -7);
 				if (!opt('weekends')) {
 					skipWeekend(t.start, delta < 0 ? -1 : 1);
 				}
 			}else{
+				addDays(t.start, 7);
 				addDays(t.end, 7);
 				if (!opt('weekends')) {
 					skipWeekend(t.end, delta < 0 ? -1 : 1);
@@ -824,7 +826,7 @@ $(document).ready(function(){
 		eventDrop: Calendar.UI.moveEvent,
 		eventResize: Calendar.UI.resizeEvent,
 		eventRender: function(event, element) {
-			element.find('.fc-event-title').html(element.find('.fc-event-title').text());
+			element.find('.fc-event-title').html(element.find('.fc-event-title').html());
 			element.tipsy({
 				className: 'tipsy-event',
 				opacity: 0.9,

@@ -29,7 +29,7 @@ class OC_Util {
 		}
 
 		// Check if apps folder is writable.
-		if(!is_writable(OC::$SERVERROOT."/apps/")) {
+		if(OC_Config::getValue('writable_appsdir', true) && !is_writable(OC::$SERVERROOT."/apps/")) {
 			$tmpl = new OC_Template( '', 'error', 'guest' );
 			$tmpl->assign('errors',array(1=>array('error'=>"Can't write into apps directory 'apps'",'hint'=>"You can usually fix this by giving the webserver user write access to the config directory in owncloud")));
 			$tmpl->printPage();
@@ -83,7 +83,7 @@ class OC_Util {
 	 * @return array
 	 */
 	public static function getVersion(){
-		return array(4,00,2);
+		return array(4,00,3);
 	}
 
 	/**
@@ -91,7 +91,7 @@ class OC_Util {
 	 * @return string
 	 */
 	public static function getVersionString(){
-		return '4.0.2';
+		return '4.0.3a';
 	}
 
         /**
@@ -323,11 +323,144 @@ class OC_Util {
 	* Redirect to the user default page
 	*/
 	public static function redirectToDefaultPage(){
-		if(isset($_REQUEST['redirect_url']) && substr($_REQUEST['redirect_url'], 0, strlen(OC::$WEBROOT)) == OC::$WEBROOT) {
+		OC_Log::write('core','redirectToDefaultPage',OC_Log::DEBUG);
+		if(isset($_REQUEST['redirect_url']) && (substr($_REQUEST['redirect_url'], 0, strlen(OC::$WEBROOT)) == OC::$WEBROOT || $_REQUEST['redirect_url'][0] == '/')) {
 			header( 'Location: '.$_REQUEST['redirect_url']);
-		} else {
+		}
+		else if (isset(OC::$REQUESTEDAPP) && !empty(OC::$REQUESTEDAPP)) {
+			header( 'Location: '.OC::$WEBROOT.'/?app='.OC::$REQUESTEDAPP );
+		}
+		else {
 			header( 'Location: '.OC::$WEBROOT.'/'.OC_Appconfig::getValue('core', 'defaultpage', '?app=files'));
 		}
 		exit();
 	}
+
+	/**
+	 * @brief Register an get/post call. This is important to prevent CSRF attacks
+	 * Todo: Write howto
+	 * @return $token Generated token.
+	 */
+	public static function callRegister(){
+		//mamimum time before token exires
+		$maxtime=(60*60);  // 1 hour
+
+		// generate a random token.
+		$token=mt_rand(1000,9000).mt_rand(1000,9000).mt_rand(1000,9000);
+
+		// store the token together with a timestamp in the session.
+		$_SESSION['requesttoken-'.$token]=time();
+
+		// cleanup old tokens garbage collector
+		// only run every 20th time so we don't waste cpu cycles
+		if(rand(0,20)==0) {  
+			foreach($_SESSION as $key=>$value) {
+				// search all tokens in the session
+				if(substr($key,0,12)=='requesttoken') {
+					if($value+$maxtime<time()){
+						// remove outdated tokens
+						unset($_SESSION[$key]);						
+					}
+				}	
+			}
+		}
+		// return the token
+		return($token);
+	}
+
+	/**
+	 * @brief Check an ajax get/post call if the request token is valid.
+	 * @return boolean False if request token is not set or is invalid.
+	 */
+	public static function isCallRegistered(){
+		//mamimum time before token exires
+		$maxtime=(60*60);  // 1 hour
+		if(isset($_GET['requesttoken'])) {
+			$token=$_GET['requesttoken'];
+		}elseif(isset($_POST['requesttoken'])){
+			$token=$_POST['requesttoken'];
+		}elseif(isset($_SERVER['HTTP_REQUESTTOKEN'])){
+			$token=$_SERVER['HTTP_REQUESTTOKEN'];
+		}else{
+			//no token found.
+			return false;
+		}
+		if(isset($_SESSION['requesttoken-'.$token])) {
+			$timestamp=$_SESSION['requesttoken-'.$token];
+			if($timestamp+$maxtime<time()){
+				return false;
+			}else{
+				//token valid
+				return true;
+			}
+		}else{
+			return false;
+		}
+	}
+
+	/**
+	 * @brief Check an ajax get/post call if the request token is valid. exit if not.
+	 * Todo: Write howto
+	 */
+	public static function callCheck(){
+		if(!OC_Util::isCallRegistered()) {
+			exit;
+		}
+	}
+	
+	/**
+	 * @brief Public function to sanitize HTML
+	 *
+	 * This function is used to sanitize HTML and should be applied on any string or array of strings before displaying it on a web page.
+	 *
+	 * @param string or array of strings
+	 * @return array with sanitized strings or a single sinitized string, depends on the input parameter.
+	 */
+	public static function sanitizeHTML( &$value ){
+		if (is_array($value) || is_object($value)) array_walk_recursive($value,'OC_Util::sanitizeHTML');
+		else $value = htmlentities($value, ENT_QUOTES, 'UTF-8'); //Specify encoding for PHP<5.4
+		return $value;
+	}
+
+
+
+
+
+        /**
+	 * Check if the htaccess file is working buy creating a test file in the data directory and trying to access via http
+	*/
+        public static function ishtaccessworking() {
+	
+		// testdata
+		$filename='/htaccesstest.txt';
+		$testcontent='testcontent';
+
+		// creating a test file
+                $testfile = OC_Config::getValue( "datadirectory", OC::$SERVERROOT."/data" ).'/'.$filename;
+                $fp = @fopen($testfile, 'w');
+                @fwrite($fp, $testcontent);
+                @fclose($fp);
+	
+		// accessing the file via http
+                $url = OC_Helper::serverProtocol(). '://'  . OC_Helper::serverHost() . OC::$WEBROOT.'/data'.$filename;
+                $fp = @fopen($url, 'r');
+                $content=@fread($fp, 2048);
+                @fclose($fp);
+	
+		// cleanup
+		@unlink($testfile);
+	
+		// does it work ?
+		if($content==$testcontent) {
+			return(false);
+		}else{
+			return(true);
+		}
+	
+ 	}
+	
+	
+
+
 }
+

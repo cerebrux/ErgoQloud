@@ -4,9 +4,6 @@
 		<title>ownCloud</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<link rel="shortcut icon" href="<?php echo image_path('', 'favicon.png'); ?>" /><link rel="apple-touch-icon-precomposed" href="<?php echo image_path('', 'favicon-touch.png'); ?>" />
-		<?php if (!empty(OC_Util::$core_styles)): ?>
-		<link rel="stylesheet" href="<?php echo OC_Helper::linkToRemote('core.css', false) ?>" type="text/css" media="screen" />
-		<?php endif ?>
 		<?php foreach($_['cssfiles'] as $cssfile): ?>
 			<link rel="stylesheet" href="<?php echo $cssfile; ?>" type="text/css" media="screen" />
 		<?php endforeach; ?>
@@ -14,9 +11,6 @@
 			var oc_webroot = '<?php echo OC::$WEBROOT; ?>';
 			var oc_appswebroot = '<?php echo OC::$APPSWEBROOT; ?>';
 		</script>
-		<?php if (!empty(OC_Util::$core_scripts)): ?>
-		<script type="text/javascript" src="<?php echo OC_Helper::linkToRemote('core.js', false) ?>"></script>
-		<?php endif ?>
 		<?php foreach($_['jsfiles'] as $jsfile): ?>
 			<script type="text/javascript" src="<?php echo $jsfile; ?>"></script>
 		<?php endforeach; ?>
@@ -39,6 +33,6 @@
 			</div></header>
 			<?php echo $_['content']; ?>
 		</div>
-		<footer><p class="info"><a href="http://ergoq.gr/">ErgoQ</a> &ndash; <?php echo $l->t( 'web services under your control' ); ?></p></footer>
+		<footer><p class="info"><a href="http://owncloud.org/">ownCloud</a> &ndash; <?php echo $l->t( 'web services under your control' ); ?></p></footer>
 	</body>
 </html>

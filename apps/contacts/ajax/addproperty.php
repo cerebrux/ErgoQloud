@@ -26,6 +26,7 @@
 // Check if we are a user
 OCP\JSON::checkLoggedIn();
 OCP\JSON::checkAppEnabled('contacts');
+OCP\JSON::callCheck();
 
 function bailOut($msg) {
 	OCP\JSON::error(array('data' => array('message' => $msg)));
@@ -85,6 +86,7 @@ if(is_array($value)) {
 	$value = strip_tags($value);
 }
 
+/* preprocessing value */
 switch($name) {
 	case 'BDAY':
 		$date = New DateTime($value);
@@ -97,6 +99,8 @@ switch($name) {
 	case 'N':
 	case 'ORG':
 	case 'NOTE':
+		$value = str_replace('\n', ' \\n', $value);
+		break;
 	case 'NICKNAME':
 		// TODO: Escape commas and semicolons.
 		break;
@@ -108,8 +112,14 @@ switch($name) {
 		break;
 }
 
-
-$property = $vcard->addProperty($name, $value); //, $parameters);
+switch($name) {
+	case 'NOTE':
+		$vcard->setString('NOTE', $value);
+		break;
+	default:
+		$property = $vcard->addProperty($name, $value); //, $parameters);
+		break;
+}
 
 $line = count($vcard->children) - 1;
 

@@ -21,26 +21,20 @@
  * TODO: Translatable strings.
  *       Remember to delete tmp file at some point.
  */
-// Init owncloud
  
-OCP\Util::writeLog('contacts','ajax/savecrop.php: Huzzah!!!', OCP\Util::DEBUG);
-
-// Check if we are a user
-OCP\JSON::checkLoggedIn();
-OCP\JSON::checkAppEnabled('contacts');
-
-// foreach ($_POST as $key=>$element) {
-// 	OCP\Util::writeLog('contacts','ajax/savecrop.php: '.$key.'=>'.$element, OCP\Util::DEBUG);
-// }
-
-// Firefox and Konqueror tries to download application/json for me.  --Arthur
-OCP\JSON::setContentTypeHeader('text/plain');
-
 function bailOut($msg) {
 	OCP\JSON::error(array('data' => array('message' => $msg)));
 	OCP\Util::writeLog('contacts','ajax/savecrop.php: '.$msg, OCP\Util::DEBUG);
 	exit();
 }
+
+// Check if we are a user
+OCP\JSON::checkLoggedIn();
+OCP\JSON::checkAppEnabled('contacts');
+OCP\JSON::callCheck();
+
+// Firefox and Konqueror tries to download application/json for me.  --Arthur
+OCP\JSON::setContentTypeHeader('text/plain');
 
 $image = null;
 

@@ -1,6 +1,38 @@
 Changelog ownCloud
 
 -------------------------------
+Release  "4.0.3"
+June 23. 2012
+
+- Added a check if the .htaccess file is working and the data directory is protected or not.
+- Added a check if a user is alowed to edit a bookmark or not.
+- Fix the bookmarklet
+- Fix the timezone in the datepicker
+- Fix mimetype detection for cdr files
+- Fix the filecache for the /Shared folder
+- Fix a potential data corruption bug in the encryption app
+- Don´t show other users filenames during filesystem cache rebuild
+- Fix several XSS bugs
+- Performance improvements for WebDAV and Desktop Syncing
+- Fix quota calculation
+- Improve the LDAP integration and group management
+- Fix problems with the pdf viewer
+- Fix user account migration
+- Implement several CSRF security checks
+- Fix a gallery bug where first picture is repeated in the last picture.
+- Lot´s of calendar fixes
+- Fix problem with "/" in filenames
+- Updated translations
+- Several fixes in Contacts
+- Lot´s of fixes in the Tasks App
+- Fix a bug in the filesystem cache with ghost entries
+
+
+Download: http://owncloud.org/releases/owncloud-4.0.3.tar.bz2
+MD5: http://owncloud.org/releases/owncloud-4.0.3.tar.bz2.md5
+
+
+-------------------------------
 Release  "4.0.2"
 June 11. 2012
 
@@ -24,8 +56,8 @@ June 11. 2012
 - Fix contact photo editing
 - Don´t allow renaming, deleting and resharing of shared folder
 
-Download: http://owncloud.org/releases/owncloud-4.0.1.tar.bz2
-MD5: http://owncloud.org/releases/owncloud-4.0.1.tar.bz2.md5
+Download: http://owncloud.org/releases/owncloud-4.0.2.tar.bz2
+MD5: http://owncloud.org/releases/owncloud-4.0.2.tar.bz2.md5
 
 
 
@@ -90,6 +122,52 @@ May 22. 2012
 
 Download: http://owncloud.org/releases/owncloud-4.0.0.tar.bz2
 MD5: http://owncloud.org/releases/owncloud-4.0.0.tar.bz2.md5
+
+
+-------------------------------
+Release  "2012.0.3"
+April 27. 2012
+
+- Security: Several CSRF fixes
+- Security: .htaccess uploading blacklist
+- Backport link in the Help center to the online documentatio
+- Backport link in the Help center to the "Big Files" howto
+- Check if JSon module is installed
+- Check if GD module is installed
+
+Download: http://owncloud.org/releases/owncloud-3.0.3.tar.bz2
+MD5: http://owncloud.org/releases/owncloud-3.0.3.tar.bz2.md5
+
+
+-------------------------------
+Release  3.0.2
+April 11. 2012
+
+Changes:
+- Drag and Drop fixed
+- Fixed Sharing for LDAP Users
+- Fix loading of LDAP Plugin
+- Security: Make password hashes more random
+- Security: Fix a XSS problem
+- Several small bugfixes
+
+Download: http://owncloud.org/releases/owncloud-3.0.2.tar.bz2
+MD5: http://owncloud.org/releases/owncloud-3.0.2.tar.bz2.md5
+
+
+-------------------------------
+Release  "3.0.1"
+April 3. 2012
+
+Changes:
+- Fixes for big file uploads
+- Performance improvements for WebDAV
+- IE8 fixes
+- Several small bugfixes
+
+Download: http://owncloud.org/releases/owncloud-3.0.1.tar.bz2
+MD5: http://owncloud.org/releases/owncloud-3.0.1.tar.bz2.md5
+
 
 
 
