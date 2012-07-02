@@ -1,6 +1,20 @@
 Changelog ownCloud
 
 -------------------------------
+Release  "4.0.4"
+June 28. 2012
+
+- Fix assigning several groups to a user.
+- Fix LDAP connector with AD servers
+- Conserve some memory in Contacts App
+- Fix a warning in Gallery when deleting files
+- Fix a bug in the music scanner
+
+Download: http://owncloud.org/releases/owncloud-4.0.4.tar.bz2
+MD5: http://owncloud.org/releases/owncloud-4.0.4.tar.bz2.md5
+
+
+-------------------------------
 Release  "4.0.3"
 June 23. 2012
 
