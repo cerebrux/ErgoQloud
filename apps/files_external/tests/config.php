@@ -29,4 +29,12 @@ return array(
 		'host'=>'localhost:8080/auth',
 		'root'=>'/',
 	),
+	'smb'=>array(
+		'run'=>false,
+		'user'=>'test',
+		'password'=>'test',
+		'host'=>'localhost',
+		'share'=>'/test',
+		'root'=>'/test/',
+	),
 );

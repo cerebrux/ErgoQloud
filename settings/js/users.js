@@ -40,7 +40,15 @@ $(document).ready(function(){
 		}else{
 			checkHandeler=false;
 		}
+		var addGroup = function(group) {
+			$('select[multiple]').each(function(index, element) {
+				if ($(element).find('option[value="'+group +'"]').length == 0) {
+					$(element).append('<option value="'+group+'">'+group+'</option>');
+				}
+			})
+		};
 		element.multiSelect({
+			createCallback:addGroup,
 			createText:'add group',
 			checked:checked,
 			oncheck:checkHandeler,
@@ -115,7 +123,7 @@ $(document).ready(function(){
 	})
 	
 	$('input.quota-other').live('change',function(){
-		var uid=$(this).parent().parent().data('uid');
+		var uid=$(this).parent().parent().parent().data('uid');
 		var quota=$(this).val();
 		var select=$(this).prev();
 		var other=$(this);
@@ -213,6 +221,5 @@ $(document).ready(function(){
 				}
 			}
 		);
-	    location.reload();
 	});
 });

@@ -48,7 +48,7 @@ Contacts={
 				adrstr = adrstr + adrarr[6].trim();
 			}
 			adrstr = encodeURIComponent(adrstr);
-			var uri = 'http://open.mapquestapi.com/nominatim/v1/search.php?q=' + adrstr + '&limit=10&addressdetails=1&zoom=';
+			var uri = 'http://open.mapquestapi.com/nominatim/v1/search.php?q=' + adrstr + '&limit=10&addressdetails=1&polygon=1&zoom=';
 			var newWindow = window.open(uri,'_blank');
 			newWindow.focus();
 		},
@@ -628,7 +628,7 @@ Contacts={
 					return false;
 				}
 				container = $(obj).parents('.propertycontainer').first(); // get the parent holding the metadata.
-				Contacts.UI.loading(container, true);
+				Contacts.UI.loading(obj, true);
 				var checksum = container.data('checksum');
 				var name = container.data('element');
 				var fields = container.find('input.contacts_property,select.contacts_property').serializeArray();
@@ -651,7 +651,7 @@ Contacts={
 				var q = container.find('input.contacts_property,select.contacts_property,textarea.contacts_property').serialize();
 				if(q == '' || q == undefined) {
 					OC.dialogs.alert(t('contacts', 'Couldn\'t serialize elements.'), t('contacts', 'Error'));
-					Contacts.UI.loading(container, false);
+					Contacts.UI.loading(obj, false);
 					return false;
 				}
 				q = q + '&id=' + this.id + '&name=' + name;
@@ -663,13 +663,13 @@ Contacts={
 						if(jsondata.status == 'success'){
 							container.data('checksum', jsondata.data.checksum);
 							Contacts.UI.Card.savePropertyInternal(name, fields, checksum, jsondata.data.checksum);
-							Contacts.UI.loading(container, false);
+							Contacts.UI.loading(obj, false);
 							$(obj).removeAttr('disabled');
 							return true;
 						}
 						else{
 							OC.dialogs.alert(jsondata.data.message, t('contacts', 'Error'));
-							Contacts.UI.loading(container, false);
+							Contacts.UI.loading(obj, false);
 							$(obj).removeAttr('disabled');
 							return false;
 						}
@@ -682,13 +682,13 @@ Contacts={
 							container.data('checksum', jsondata.data.checksum);
 							// TODO: savePropertyInternal doesn't know about new fields
 							//Contacts.UI.Card.savePropertyInternal(name, fields, checksum, jsondata.data.checksum);
-							Contacts.UI.loading(container, false);
+							Contacts.UI.loading(obj, false);
 							$(obj).removeAttr('disabled');
 							return true;
 						}
 						else{
 							OC.dialogs.alert(jsondata.data.message, t('contacts', 'Error'));
-							Contacts.UI.loading(container, false);
+							Contacts.UI.loading(obj, false);
 							$(obj).removeAttr('disabled');
 							return false;
 						}
@@ -1427,7 +1427,7 @@ Contacts={
 							}
 						}
 					};
-					xhr.open('POST', OC.filePath('contacts', 'ajax', 'uploadimport.php') + '?file='+encodeURIComponent(file.name), true);
+					xhr.open('POST', OC.filePath('contacts', 'ajax', 'uploadimport.php') + '?file='+encodeURIComponent(file.name)+'&requesttoken='+requesttoken, true);
 					xhr.setRequestHeader('Cache-Control', 'no-cache');
 					xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 					xhr.setRequestHeader('X_FILE_NAME', encodeURIComponent(file.name));

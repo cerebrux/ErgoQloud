@@ -10,6 +10,9 @@ ob_start();
  
 OCP\JSON::checkLoggedIn();
 OCP\App::checkAppEnabled('contacts');
+session_write_close();
+
+$cr = "\r";
 $nl = "\n";
 $progressfile = 'import_tmp/' . md5(session_id()) . '.txt';
 
@@ -52,6 +55,10 @@ writeProgress('20');
 $searchfor = array('VCARD');
 $parts = $searchfor;
 $filearr = explode($nl, $file);
+if(count($filearr) == 1) { // Mac eol
+	$filearr = explode($cr, $file);
+}
+
 $inelement = false;
 $parts = array();
 $i = 0;
@@ -108,7 +115,7 @@ if(count($parts) == 1){
 $imported = 0;
 $failed = 0;
 if(!count($importready) > 0) {
-	OCP\JSON::error(array('message' => 'No contacts to import in .'.$_POST['file'].' Please check if the file is corrupted.'));
+	OCP\JSON::error(array('data' => (array('message' => 'No contacts to import in .'.$_POST['file'].' Please check if the file is corrupted.'))));
 	exit();
 }
 foreach($importready as $import){
