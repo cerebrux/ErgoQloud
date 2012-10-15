@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<title>ErgoQloud</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 		<link rel="shortcut icon" href="<?php echo image_path('', 'favicon.png'); ?>" /><link rel="apple-touch-icon-precomposed" href="<?php echo image_path('', 'favicon-touch.png'); ?>" />
 		<?php foreach($_['cssfiles'] as $cssfile): ?>
 			<link rel="stylesheet" href="<?php echo $cssfile; ?>" type="text/css" media="screen" />
@@ -31,10 +31,10 @@
 	<body id="body-login">
 		<div id="login">
 			<header><div id="header">
-				<img src="<?php echo image_path('', 'logo.png'); ?>" alt="ownCloud" />
+				<img src="<?php echo image_path('', 'logo.png'); ?>" alt="ErgoQloud" />
 			</div></header>
 			<?php echo $_['content']; ?>
 		</div>
-		<footer><p class="info"><a href="http://ergoq.gr/">ErgoQ</a> &ndash; <?php echo $l->t( 'web services under your control' ); ?></p></footer>
+		<footer><p class="info"><a href="http://ergoq.gr/">ErgoQloud</a> &ndash; <?php echo $l->t( 'web services under your control' ); ?></p></footer>
 	</body>
 </html>
