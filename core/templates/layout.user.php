@@ -9,8 +9,10 @@
 		<?php endforeach; ?>
 		<script type="text/javascript">
 			var oc_webroot = '<?php echo OC::$WEBROOT; ?>';
-			var oc_appswebroot = '<?php echo OC::$APPSWEBROOT; ?>';
+			var oc_appswebroots = <?php echo $_['apps_paths'] ?>;
 			var oc_current_user = '<?php echo OC_User::getUser() ?>';
+			var oc_requesttoken = '<?php echo $_['requesttoken']; ?>';
+			var oc_requestlifespan = '<?php echo $_['requestlifespan']; ?>';
 		</script>
 		<?php foreach($_['jsfiles'] as $jsfile): ?>
 			<script type="text/javascript" src="<?php echo $jsfile; ?>"></script>
@@ -18,37 +20,27 @@
 		<?php foreach($_['headers'] as $header): ?>
 			<?php
 				echo '<'.$header['tag'].' ';
-				foreach($header['attributes'] as $name=>$value){
+				foreach($header['attributes'] as $name=>$value) {
 					echo "$name='$value' ";
 				};
 				echo '/>';
 			?>
 		<?php endforeach; ?>
-		<script type="text/javascript">
-			$(function() {
-				requesttoken = '<?php echo $_['requesttoken']; ?>';
-				$(document).bind('ajaxSend', function(elm, xhr, s){
-					if(requesttoken) {
-						xhr.setRequestHeader('requesttoken', requesttoken);
-					}
-				});
-			});
-		</script>
 	</head>
 
 	<body id="<?php echo $_['bodyid'];?>">
 		<header><div id="header">
 			<a href="<?php echo link_to('', 'index.php'); ?>" title="" id="owncloud"><img class="svg" src="<?php echo image_path('', 'logo-wide.svg'); ?>" alt="ErgoQloud" /></a>
-			<form class="searchbox" action="#" method="post">
-				<input id="searchbox" class="svg" type="search" name="query" value="<?php if(isset($_POST['query'])){echo htmlentities($_POST['query']);};?>" autocomplete="off" />
+			<a class="header-right header-action" id="logout" href="<?php echo link_to('', 'index.php'); ?>?logout=true"><img class="svg" alt="<?php echo $l->t('Log out');?>" title="<?php echo $l->t('Log out');  echo OC_User::getUser()?' ('.OC_User::getUser().') ':'' ?>" src="<?php echo image_path('', 'actions/logout.svg'); ?>" /></a>
+			<form class="searchbox header-right" action="#" method="post">
+				<input id="searchbox" class="svg" type="search" name="query" value="<?php if(isset($_POST['query'])) {echo OC_Util::sanitizeHTML($_POST['query']);};?>" autocomplete="off" x-webkit-speech />
 			</form>
-			<a id="logout" href="<?php echo link_to('', 'index.php'); ?>?logout=true"><img class="svg" alt="<?php echo $l->t('Log out');?>" title="<?php echo $l->t('Log out');?>" src="<?php echo image_path('', 'actions/logout.svg'); ?>" /></a>
 		</div></header>
 
 		<nav><div id="navigation">
 			<ul id="apps" class="svg">
 				<?php foreach($_['navigation'] as $entry): ?>
-					<li><a style="background-image:url(<?php echo $entry['icon']; ?>)" href="<?php echo $entry['href']; ?>" title="" <?php if( $entry['active'] ): ?> class="active"<?php endif; ?>><?php echo $entry['name']; ?></a>
+					<li data-id="<?php echo $entry['id']; ?>"><a style="background-image:url(<?php echo $entry['icon']; ?>)" href="<?php echo $entry['href']; ?>" title="" <?php if( $entry['active'] ): ?> class="active"<?php endif; ?>><?php echo $entry['name']; ?></a>
 					</li>
 				<?php endforeach; ?>
 			</ul>

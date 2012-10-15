@@ -5,7 +5,7 @@
  *
  * @author Frank Karlitschek
  * @author Jakob Sack
- * @copyright 2010 Frank Karlitschek karlitschek@kde.org
+ * @copyright 2012 Frank Karlitschek frank@owncloud.org
  * @copyright 2011 Jakob Sack kde@jakobsack.de
  *
  * This library is free software; you can redistribute it and/or
@@ -23,11 +23,9 @@
  *
  */
 
-// Do not load FS ...
-$RUNTIME_NOSETUPFS = true;
 // only need filesystem apps
 $RUNTIME_APPTYPES=array('filesystem','authentication');
-require_once('../lib/base.php');
+require_once '../lib/base.php';
 
 // Backends
 $authBackend = new OC_Connector_Sabre_Auth();
@@ -38,10 +36,10 @@ $publicDir = new OC_Connector_Sabre_Directory('');
 
 // Fire up server
 $server = new Sabre_DAV_Server($publicDir);
-$server->setBaseUri(OC::$WEBROOT.'/files/webdav.php');
+$server->setBaseUri(OC::$WEBROOT. '/files/webdav.php');
 
 // Load plugins
-$server->addPlugin(new Sabre_DAV_Auth_Plugin($authBackend,'ownCloud'));
+$server->addPlugin(new Sabre_DAV_Auth_Plugin($authBackend, 'ownCloud'));
 $server->addPlugin(new Sabre_DAV_Locks_Plugin($lockBackend));
 $server->addPlugin(new Sabre_DAV_Browser_Plugin(false)); // Show something in the Browser, but no upload
 

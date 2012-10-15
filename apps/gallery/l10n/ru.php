@@ -1,12 +1,9 @@
 <?php $TRANSLATIONS = array(
 "Pictures" => "Рисунки",
-"Settings" => "Настройки",
-"Rescan" => "Обновить",
-"Stop" => "Остановить",
-"Share" => "Поделиться",
-"Back" => "Назад",
-"Remove confirmation" => "Подтверждение удаления",
-"Do you want to remove album" => "Вы хотите удалить альбом?",
-"Change album name" => "Изменить имя альбома",
-"New album name" => "Новое имя альбома"
+"Galleries" => "Галереи",
+"Share gallery" => "Опубликовать",
+"Error: " => "Ошибка: ",
+"Internal error" => "Внутренняя ошибка",
+"Slideshow" => "Слайдшоу",
+"The \"Image Viewer\" application also need to be enabled to use this application." => "Для работы этого приложения необходимо включить приложение \"Image Viewer\"."
 );

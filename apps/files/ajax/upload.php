@@ -7,6 +7,7 @@
 OCP\JSON::setContentTypeHeader('text/plain');
 
 OCP\JSON::checkLoggedIn();
+OCP\JSON::callCheck();
 
 if (!isset($_FILES['files'])) {
 	OCP\JSON::error(array("data" => array( "message" => "No file was uploaded. Unknown error" )));
@@ -34,30 +35,29 @@ $dir = $_POST['dir'];
 $error='';
 
 $totalSize=0;
-foreach($files['size'] as $size){
+foreach($files['size'] as $size) {
 	$totalSize+=$size;
 }
-if($totalSize>OC_Filesystem::free_space('/')){
+if($totalSize>OC_Filesystem::free_space('/')) {
 	OCP\JSON::error(array("data" => array( "message" => "Not enough space available" )));
 	exit();
 }
 
 $result=array();
-if(strpos($dir,'..') === false){
+if(strpos($dir, '..') === false) {
 	$fileCount=count($files['name']);
-	for($i=0;$i<$fileCount;$i++){
+	for($i=0;$i<$fileCount;$i++) {
         $target = OCP\Files::buildNotExistingFileName(stripslashes($dir), $files['name'][$i]);
-		if(is_uploaded_file($files['tmp_name'][$i]) and OC_Filesystem::fromTmpFile($files['tmp_name'][$i],$target)){
-			$meta=OC_FileCache::getCached($target);
-			$result[]=array( "status" => "success", 'mime'=>$meta['mimetype'],'size'=>$meta['size'],'name'=>basename($target));
+		if(is_uploaded_file($files['tmp_name'][$i]) and OC_Filesystem::fromTmpFile($files['tmp_name'][$i], $target)) {
+			$meta = OC_FileCache::get($target);
+			$id = OC_FileCache::getId($target);
+			$result[]=array( "status" => "success", 'mime'=>$meta['mimetype'],'size'=>$meta['size'], 'id'=>$id, 'name'=>basename($target));
 		}
 	}
 	OCP\JSON::encodedPrint($result);
 	exit();
-}else{
+} else {
 	$error='invalid dir';
 }
 
 OCP\JSON::error(array('data' => array('error' => $error, "file" => $fileName)));
-
-?>

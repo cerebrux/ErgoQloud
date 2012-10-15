@@ -8,14 +8,14 @@
 
 function bailOut($msg) {
 	OC_JSON::error(array('data' => array('message' => $msg)));
-	OC_Log::write('core','ajax/vcategories/delete.php: '.$msg, OC_Log::DEBUG);
+	OC_Log::write('core', 'ajax/vcategories/delete.php: '.$msg, OC_Log::DEBUG);
 	exit();
 }
 function debug($msg) {
-	OC_Log::write('core','ajax/vcategories/delete.php: '.$msg, OC_Log::DEBUG);
+	OC_Log::write('core', 'ajax/vcategories/delete.php: '.$msg, OC_Log::DEBUG);
 }
 
-require_once('../../../lib/base.php');
+require_once '../../../lib/base.php';
 OC_JSON::checkLoggedIn();
 $app = isset($_POST['app'])?$_POST['app']:null;
 $categories = isset($_POST['categories'])?$_POST['categories']:null;
@@ -34,5 +34,3 @@ if(is_null($categories)) {
 $vcategories = new OC_VCategories($app);
 $vcategories->delete($categories);
 OC_JSON::success(array('data' => array('categories'=>$vcategories->categories())));
-
-?>

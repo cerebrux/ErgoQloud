@@ -10,7 +10,7 @@
 		<tr>
 			<th width="75px"><?php echo $l->t("Title");?>:</th>
 			<td>
-				<?php echo isset($_['title']) ? htmlspecialchars($_['title']) : '' ?>
+				<?php echo isset($_['title']) ? $_['title'] : '' ?>
 			</td>
 		</tr>
 	</table>
@@ -19,11 +19,11 @@
 			<th width="75px"><?php echo $l->t("Category");?>:</th>
 			<td>
 				<?php
-				if(count($_['categories']) == 0 || $_['categories'] == ''){
+				if(count($_['categories']) == 0 || $_['categories'] == '') {
 					echo $l->t('No categories selected');
 				}else{
 					echo '<ul>';
-					foreach($_['categories'] as $categorie){
+					foreach($_['categories'] as $categorie) {
 						echo '<li>' . $categorie . '</li>';
 					}
 					echo '</ul>';
@@ -34,7 +34,7 @@
 			<td>
 			<?php
 			$calendar = OC_Calendar_App::getCalendar($_['calendar'], false, false);
-			echo $calendar['displayname'] . ' ' . $l->t('of') . ' ' . $calendar['userid'];
+			echo OCP\Util::sanitizeHTML($calendar['displayname']) . ' ' . $l->t('of') . ' ' . $calendar['userid'];
 			?>
 			</td>
 			<th width="75px">&nbsp;</th>
@@ -48,7 +48,7 @@
 		<tr>
 			<th width="75px"></th>
 			<td>
-				<input onclick="Calendar.UI.lockTime();" type="checkbox"<?php if($_['allday']){echo 'checked="checked"';} ?> id="allday_checkbox" name="allday" disabled="disabled">
+				<input onclick="Calendar.UI.lockTime();" type="checkbox"<?php if($_['allday']) {echo 'checked="checked"';} ?> id="allday_checkbox" name="allday" disabled="disabled">
 				<?php echo $l->t("All Day Event");?>
 			</td>
 		</tr>
@@ -76,7 +76,7 @@
 			<tr>
 				<th width="85px"><?php echo $l->t("Location");?>:</th>
 				<td>
-					<?php echo isset($_['location']) ? htmlspecialchars($_['location']) : '' ?>
+					<?php echo isset($_['location']) ? $_['location'] : '' ?>
 				</td>
 			</tr>
 		</table>
@@ -84,7 +84,7 @@
 			<tr>
 				<th width="85px" style="vertical-align: top;"><?php echo $l->t("Description");?>:</th>
 				<td>
-					<?php echo isset($_['description']) ? htmlspecialchars($_['description']) : '' ?></textarea>
+					<?php echo isset($_['description']) ? $_['description'] : '' ?></textarea>
 			</tr>
 		</table>
 	</div>
@@ -217,7 +217,7 @@
 						<select id="end" name="end">
 							<?php
 							if($_['repeat_end'] == '') $_['repeat_end'] = 'never';
-							echo OCP\html_select_options(array($_['repeat_end_options'][$_['repeat_end']]), $_['repeat_end']); 
+							echo OCP\html_select_options(array($_['repeat_end_options'][$_['repeat_end']]), $_['repeat_end']);
 							?>
 						</select>
 					</td>

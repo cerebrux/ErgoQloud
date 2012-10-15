@@ -4,7 +4,7 @@
  *
  * @author Frank Karlitschek
  * @author Jakob Sack
- * @copyright 2010 Frank Karlitschek karlitschek@kde.org
+ * @copyright 2012 Frank Karlitschek frank@owncloud.org
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -29,56 +29,66 @@
 class OC_OCSClient{
 
 	/**
-	 * @brief Get the url of the OCS AppStore server. 
+	 * @brief Get the url of the OCS AppStore server.
 	 * @returns string of the AppStore server
 	 *
 	 * This function returns the url of the OCS AppStore server. It´s possible to set it in the config file or it will fallback to the default
 	 */
-	private static function getAppStoreURL(){
-		$configurl=OC_Config::getValue('appstoreurl', '');
-		if($configurl<>'') {
-			$url=$configurl;
-		}else{
-			$url='http://api.apps.owncloud.com/v1';
-		}
+	private static function getAppStoreURL() {
+		$url = OC_Config::getValue('appstoreurl', 'http://api.apps.owncloud.com/v1');
 		return($url);
 	}
 
         /**
-         * @brief Get the url of the OCS KB server. 
+         * @brief Get the url of the OCS KB server.
          * @returns string of the KB server
          * This function returns the url of the OCS knowledge base server. It´s possible to set it in the config file or it will fallback to the default
          */
-        private static function getKBURL(){
-                $configurl=OC_Config::getValue('knowledgebaseurl', '');
-                if($configurl<>'') {
-                        $url=$configurl;
-                }else{
-                        $url='http://api.apps.owncloud.com/v1';
-                }
+        private static function getKBURL() {
+                $url = OC_Config::getValue('knowledgebaseurl', 'http://api.apps.owncloud.com/v1');
                 return($url);
         }
+
+	/**
+	 * @brief Get the content of an OCS url call.
+	 * @returns string of the response
+	 * This function calls an OCS server and returns the response. It also sets a sane timeout
+	*/
+	private static function getOCSresponse($url) {
+		// set a sensible timeout of 10 sec to stay responsive even if the server is down.
+		$ctx = stream_context_create(
+			array(
+				'http' => array(
+					'timeout' => 10
+				)
+			)
+		);      
+		$data=@file_get_contents($url, 0, $ctx);
+		return($data);
+	}
 
 
 	/**
 	 * @brief Get all the categories from the OCS server
 	 * @returns array with category ids
-	 *
+	 * @note returns NULL if config value appstoreenabled is set to false
 	 * This function returns a list of all the application categories on the OCS server
 	 */
-	public static function getCategories(){
+	public static function getCategories() {
+		if(OC_Config::getValue('appstoreenabled', true)==false) {
+			return NULL;
+		}
 		$url=OC_OCSClient::getAppStoreURL().'/content/categories';
-	
-		$xml=@file_get_contents($url);
-		if($xml==FALSE){
+		$xml=OC_OCSClient::getOCSresponse($url);
+		if($xml==FALSE) {
 			return NULL;
 		}
 		$data=simplexml_load_string($xml);
-	
+
 		$tmp=$data->data;
 		$cats=array();
 
-		foreach($tmp->category as $key=>$value) {
+		foreach($tmp->category as $value) {
 
 			$id= (int) $value->id;
 			$name= (string) $value->name;
@@ -95,8 +105,8 @@ class OC_OCSClient{
 	 *
 	 * This function returns a list of all the applications on the OCS server
 	 */
-	public static function getApplications($categories,$page){
-		if(OC_Config::getValue('appstoreenabled', true)==false){
+	public static function getApplications($categories,$page,$filter) {
+		if(OC_Config::getValue('appstoreenabled', true)==false) {
 			return(array());
 		}
 
@@ -105,10 +115,14 @@ class OC_OCSClient{
 		}else{
 			$categoriesstring=$categories;
 		}
-		$url=OC_OCSClient::getAppStoreURL().'/content/data?categories='.urlencode($categoriesstring).'&sortmode=new&page='.urlencode($page).'&pagesize=100';
+
+		$version='&version='.implode('x',\OC_Util::getVersion());
+		$filterurl='&filter='.urlencode($filter);
+		$url=OC_OCSClient::getAppStoreURL().'/content/data?categories='.urlencode($categoriesstring).'&sortmode=new&page='.urlencode($page).'&pagesize=100'.$filterurl.$version;
 		$apps=array();
-		$xml=@file_get_contents($url);
-		if($xml==FALSE){
+		$xml=OC_OCSClient::getOCSresponse($url);
+
+		if($xml==FALSE) {
 			return NULL;
 		}
 		$data=simplexml_load_string($xml);
@@ -126,9 +140,10 @@ class OC_OCSClient{
 			$app['preview']=(string)$tmp[$i]->smallpreviewpic1;
 			$app['changed']=strtotime($tmp[$i]->changed);
 			$app['description']=(string)$tmp[$i]->description;
-	
+			$app['score']=(string)$tmp[$i]->score;
+
 			$apps[]=$app;
-		} 
+		}
 		return $apps;
 	}
 
@@ -139,11 +154,14 @@ class OC_OCSClient{
 	 *
 	 * This function returns an  applications from the OCS server
 	 */
-	public static function getApplication($id){
+	public static function getApplication($id) {
+		if(OC_Config::getValue('appstoreenabled', true)==false) {
+			return NULL;
+		}
 		$url=OC_OCSClient::getAppStoreURL().'/content/data/'.urlencode($id);
+		$xml=OC_OCSClient::getOCSresponse($url);
 
-		$xml=@file_get_contents($url);
-		if($xml==FALSE){
+		if($xml==FALSE) {
 			OC_Log::write('core','Unable to parse OCS content',OC_Log::FATAL);
 			return NULL;
 		}
@@ -163,35 +181,39 @@ class OC_OCSClient{
 		$app['changed']=strtotime($tmp->changed);
 		$app['description']=$tmp->description;
 		$app['detailpage']=$tmp->detailpage;
+		$app['score']=$tmp->score;
 
 		return $app;
 	}
 
-        /**
-         * @brief Get the download url for an application from the OCS server
-         * @returns array with application data
-         *
-         * This function returns an download url for an applications from the OCS server
-         */
-        public static function getApplicationDownload($id,$item){
-                $url=OC_OCSClient::getAppStoreURL().'/content/download/'.urlencode($id).'/'.urlencode($item);
-
-                $xml=@file_get_contents($url);
-                if($xml==FALSE){
-                        OC_Log::write('core','Unable to parse OCS content',OC_Log::FATAL);
-                        return NULL;
-                }
-                $data=simplexml_load_string($xml);
-
-                $tmp=$data->data->content;
-                $app=array();
-                if(isset($tmp->downloadlink)) { 
-	 		$app['downloadlink']=$tmp->downloadlink;
-		}else{
-	 		$app['downloadlink']='';
+	/**
+		* @brief Get the download url for an application from the OCS server
+		* @returns array with application data
+		*
+		* This function returns an download url for an applications from the OCS server
+		*/
+	public static function getApplicationDownload($id,$item) {
+		if(OC_Config::getValue('appstoreenabled', true)==false) {
+			return NULL;
 		}
-                return $app;
-        }
+		$url=OC_OCSClient::getAppStoreURL().'/content/download/'.urlencode($id).'/'.urlencode($item);
+		$xml=OC_OCSClient::getOCSresponse($url);
+
+		if($xml==FALSE) {
+			OC_Log::write('core','Unable to parse OCS content',OC_Log::FATAL);
+			return NULL;
+		}
+		$data=simplexml_load_string($xml);
+
+		$tmp=$data->data->content;
+		$app=array();
+		if(isset($tmp->downloadlink)) {
+			$app['downloadlink']=$tmp->downloadlink;
+		}else{
+			$app['downloadlink']='';
+		}
+		return $app;
+	}
 
 
 	/**
@@ -200,8 +222,8 @@ class OC_OCSClient{
 	 *
 	 * This function returns a list of all the knowledgebase entries from the OCS server
 	 */
-	public static function getKnownledgebaseEntries($page,$pagesize,$search=''){	
-		if(OC_Config::getValue('knowledgebaseenabled', true)==false){
+	public static function getKnownledgebaseEntries($page,$pagesize,$search='') {
+		if(OC_Config::getValue('knowledgebaseenabled', true)==false) {
 			$kbe=array();
 			$kbe['totalitems']=0;
 			return $kbe;
@@ -213,8 +235,9 @@ class OC_OCSClient{
 		$url=OC_OCSClient::getKBURL().'/knowledgebase/data?type=150&page='.$p.'&pagesize='.$s.$searchcmd;
 
 		$kbe=array();
-		$xml=@file_get_contents($url);
-		if($xml==FALSE){
+		$xml=OC_OCSClient::getOCSresponse($url);
+
+		if($xml==FALSE) {
 			OC_Log::write('core','Unable to parse knowledgebase content',OC_Log::FATAL);
 			return NULL;
 		}

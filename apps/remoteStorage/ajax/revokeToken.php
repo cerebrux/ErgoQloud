@@ -5,7 +5,7 @@
 *
 * Original:
 * @author Frank Karlitschek
-* @copyright 2010 Frank Karlitschek karlitschek@kde.org
+* @copyright 2012 Frank Karlitschek frank@owncloud.org
 * 
 * Adapted:
 * @author Michiel de Jong, 2012
@@ -25,12 +25,8 @@
 *
 */
 
-
-// Do not load FS ...
-$RUNTIME_NOSETUPFS = true;
- 
 OCP\App::checkAppEnabled('remoteStorage');
-require_once('remoteStorage/lib_remoteStorage.php');
+require_once 'remoteStorage/lib_remoteStorage.php';
 
 ini_set('default_charset', 'UTF-8');
 #ini_set('error_reporting', '');

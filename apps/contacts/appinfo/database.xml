@@ -44,13 +44,14 @@
     <type>text</type>
     <default></default>
     <notnull>false</notnull>
-    <length>100</length>
+    <length>200</length>
    </field>
 
    <field>
     <name>description</name>
-    <type>clob</type>
+    <type>text</type>
     <notnull>false</notnull>
+    <length>255</length>
    </field>
 
    <field>
@@ -59,6 +60,14 @@
     <default>1</default>
     <notnull>true</notnull>
     <unsigned>true</unsigned>
+    <length>4</length>
+   </field>
+
+   <field>
+    <name>active</name>
+    <type>integer</type>
+    <default>1</default>
+    <notnull>true</notnull>
     <length>4</length>
    </field>
 
@@ -110,7 +119,7 @@
     <type>text</type>
     <default></default>
     <notnull>false</notnull>
-    <length>100</length>
+    <length>200</length>
    </field>
 
    <field>

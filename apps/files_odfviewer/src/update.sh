@@ -9,3 +9,4 @@ cp webodf/webodf*.js ../../js/
 cd ..
 rm -rf webodf
 rm -rf build
+

@@ -23,7 +23,7 @@
 
 
 // Init owncloud
- 
+
 
 OCP\User::checkAdminUser();
 
@@ -33,7 +33,7 @@ $upload_max_filesize = OCP\Util::computerFileSize(ini_get('upload_max_filesize')
 $post_max_size = OCP\Util::computerFileSize(ini_get('post_max_size'));
 $maxUploadFilesize = OCP\Util::humanFileSize(min($upload_max_filesize, $post_max_size));
 if($_POST) {
-	if(isset($_POST['maxUploadSize'])){
+	if(isset($_POST['maxUploadSize'])) {
 		if(($setMaxSize = OC_Files::setUploadLimit(OCP\Util::computerFileSize($_POST['maxUploadSize']))) !== false) {
 			$maxUploadFilesize = OCP\Util::humanFileSize($setMaxSize);
 		}
@@ -51,8 +51,10 @@ $allowZipDownload = intval(OCP\Config::getSystemValue('allowZipDownload', true))
 
 OCP\App::setActiveNavigationEntry( "files_administration" );
 
+$htaccessWritable=is_writable(OC::$SERVERROOT.'/.htaccess');
+
 $tmpl = new OCP\Template( 'files', 'admin' );
-$tmpl->assign( 'htaccessWorking', $htaccessWorking );
+$tmpl->assign( 'uploadChangable', $htaccessWorking and $htaccessWritable );
 $tmpl->assign( 'uploadMaxFilesize', $maxUploadFilesize);
 $tmpl->assign( 'maxPossibleUploadSize', OCP\Util::humanFileSize(PHP_INT_MAX));
 $tmpl->assign( 'allowZipDownload', $allowZipDownload);

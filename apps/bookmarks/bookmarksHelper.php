@@ -56,7 +56,7 @@ function getURLMetadata($url) {
 	} 
 	$metadata['url'] = $url;
 
-	if (!function_exists('curl_init')){
+	if (!function_exists('curl_init')) {
 		return $metadata;
 	}
 	$ch = curl_init();
@@ -73,7 +73,7 @@ function getURLMetadata($url) {
 
 function addBookmark($url, $title, $tags='') {
 	$CONFIG_DBTYPE = OCP\Config::getSystemValue( "dbtype", "sqlite" );
-	if( $CONFIG_DBTYPE == 'sqlite' or $CONFIG_DBTYPE == 'sqlite3' ){
+	if( $CONFIG_DBTYPE == 'sqlite' or $CONFIG_DBTYPE == 'sqlite3' ) {
 		$_ut = "strftime('%s','now')";
 	} elseif($CONFIG_DBTYPE == 'pgsql') {
 		$_ut = 'date_part(\'epoch\',now())::integer';
@@ -83,14 +83,15 @@ function addBookmark($url, $title, $tags='') {
 	
 	//FIXME: Detect when user adds a known URL
 	$query = OCP\DB::prepare("
-		INSERT INTO *PREFIX*bookmarks
-		(url, title, user_id, public, added, lastmodified)
+		INSERT INTO `*PREFIX*bookmarks`
+		(`url`, `title`, `user_id`, `public`, `added`, `lastmodified`)
 		VALUES (?, ?, ?, 0, $_ut, $_ut)
 		");
 	
 	if(empty($title)) {
 		$metadata = getURLMetadata($url);
-		$title = $metadata['title'];
+		if(isset($metadata['title'])) // Check for problems fetching the title
+			$title = $metadata['title'];
 	}
 	
 	if(empty($title)) {
@@ -109,8 +110,8 @@ function addBookmark($url, $title, $tags='') {
 	
 	if($b_id !== false) {
 		$query = OCP\DB::prepare("
-			INSERT INTO *PREFIX*bookmarks_tags
-			(bookmark_id, tag)
+			INSERT INTO `*PREFIX*bookmarks_tags`
+			(`bookmark_id`, `tag`)
 			VALUES (?, ?)
 			");
 	

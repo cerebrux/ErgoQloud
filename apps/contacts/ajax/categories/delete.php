@@ -6,22 +6,12 @@
  * See the COPYING-README file.
  */
 
- 
+
 OCP\JSON::checkLoggedIn();
 OCP\JSON::checkAppEnabled('contacts');
+OCP\JSON::callCheck();
 
-foreach ($_POST as $key=>$element) {
-	debug('_POST: '.$key.'=>'.print_r($element, true));
-}
-
-function bailOut($msg) {
-	OCP\JSON::error(array('data' => array('message' => $msg)));
-	OCP\Util::writeLog('contacts','ajax/categories/delete.php: '.$msg, OCP\Util::DEBUG);
-	exit();
-}
-function debug($msg) {
-	OCP\Util::writeLog('contacts','ajax/categories/delete.php: '.$msg, OCP\Util::DEBUG);
-}
+require_once __DIR__.'/../loghandler.php';
 
 $categories = isset($_POST['categories'])?$_POST['categories']:null;
 
@@ -38,7 +28,7 @@ if(count($addressbooks) == 0) {
 $addressbookids = array();
 foreach($addressbooks as $addressbook) {
 	$addressbookids[] = $addressbook['id'];
-} 
+}
 $contacts = OC_Contacts_VCard::all($addressbookids);
 if(count($contacts) == 0) {
 	bailOut(OC_Contacts_App::$l10n->t('No contacts found.'));
@@ -47,7 +37,7 @@ if(count($contacts) == 0) {
 $cards = array();
 foreach($contacts as $contact) {
 	$cards[] = array($contact['id'], $contact['carddata']);
-} 
+}
 
 debug('Before delete: '.print_r($categories, true));
 
@@ -56,5 +46,3 @@ $catman->delete($categories, $cards);
 debug('After delete: '.print_r($catman->categories(), true));
 OC_Contacts_VCard::updateDataByID($cards);
 OCP\JSON::success(array('data' => array('categories'=>$catman->categories())));
-
-?>

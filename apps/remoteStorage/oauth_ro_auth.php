@@ -9,10 +9,10 @@
 
 class OC_Connector_Sabre_Auth_ro_oauth extends Sabre_DAV_Auth_Backend_AbstractBasic {
 	private $validTokens;
-  private $category;
+	private $category;
 	public function __construct($validTokensArg, $categoryArg) {
 		$this->validTokens = $validTokensArg;
-    $this->category = $categoryArg;
+		$this->category = $categoryArg;
 	}
 
 	/**
@@ -23,18 +23,18 @@ class OC_Connector_Sabre_Auth_ro_oauth extends Sabre_DAV_Auth_Backend_AbstractBa
 	 *
 	 * @return bool
 	 */
-	protected function validateUserPass($username, $password){
+	protected function validateUserPass($username, $password) {
 		//always give read-only:
-		if(($_SERVER['REQUEST_METHOD'] == 'OPTIONS') 
+		if(($_SERVER['REQUEST_METHOD'] == 'OPTIONS')
 		    || (isset($this->validTokens[$password]))
-        || (($_SERVER['REQUEST_METHOD'] == 'GET') && ($this->category == 'public'))
-        ) {
+			|| (($_SERVER['REQUEST_METHOD'] == 'GET') && ($this->category == 'public'))
+		) {
 			OC_Util::setUpFS();
 			return true;
 		} else {
-      //var_export($_SERVER);
-      //var_export($this->validTokens);
-      //die('not getting in with "'.$username.'"/"'.$password.'"!');
+			//var_export($_SERVER);
+			//var_export($this->validTokens);
+			//die('not getting in with "'.$username.'"/"'.$password.'"!');
 			return false;	
 		}
 	}
@@ -48,8 +48,8 @@ class OC_Connector_Sabre_Auth_ro_oauth extends Sabre_DAV_Auth_Backend_AbstractBa
 		$userpass = $auth->getUserPass();
 		if (!$userpass) {
 			if(($_SERVER['REQUEST_METHOD'] == 'OPTIONS')
-	        ||(($_SERVER['REQUEST_METHOD'] == 'GET') && ($this->category == 'public'))
-          ) {
+				||(($_SERVER['REQUEST_METHOD'] == 'GET') && ($this->category == 'public'))
+			) {
 				$userpass = array('', '');
 			} else {
 				$auth->requireLogin();
@@ -67,4 +67,3 @@ class OC_Connector_Sabre_Auth_ro_oauth extends Sabre_DAV_Auth_Backend_AbstractBa
 	}
 
 } 
-

@@ -1,11 +1,11 @@
 <?php
 /**
- * Copyright (c) 2011, Frank Karlitschek karlitschek@kde.org
+ * 2012 Frank Karlitschek frank@owncloud.org
  * This file is licensed under the Affero General Public License version 3 or later.
  * See the COPYING-README file.
  */
 
-require_once('../lib/base.php');
+require_once '../lib/base.php';
 OC_Util::checkLoggedIn();
 
 
@@ -15,7 +15,7 @@ OC_App::setActiveNavigationEntry( "help" );
 
 $pagesize=7;
 if(isset($_GET['page'])) $page=$_GET['page']; else $page=0;
-$kbe=OC_OCSClient::getKnownledgebaseEntries($page,$pagesize);
+$kbe=OC_OCSClient::getKnownledgebaseEntries($page, $pagesize);
 $totalitems=$kbe['totalitems'];
 unset($kbe['totalitems']);
 $pagecount=ceil($totalitems/$pagesize);
@@ -25,5 +25,3 @@ $tmpl->assign( "kbe", $kbe );
 $tmpl->assign( "pagecount", $pagecount );
 $tmpl->assign( "page", $page );
 $tmpl->printPage();
-
-?>

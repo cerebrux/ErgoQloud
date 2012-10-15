@@ -9,7 +9,9 @@
 		<?php endforeach; ?>
 		<script type="text/javascript">
 			var oc_webroot = '<?php echo OC::$WEBROOT; ?>';
-			var oc_appswebroot = '<?php echo OC::$APPSWEBROOT; ?>';
+			var oc_appswebroots = <?php echo $_['apps_paths'] ?>;
+			var oc_requesttoken = '<?php echo $_['requesttoken']; ?>';
+			var oc_requestlifespan = '<?php echo $_['requestlifespan']; ?>';
 		</script>
 		<?php foreach($_['jsfiles'] as $jsfile): ?>
 			<script type="text/javascript" src="<?php echo $jsfile; ?>"></script>
@@ -18,7 +20,7 @@
 		<?php foreach($_['headers'] as $header): ?>
 			<?php
 				echo '<'.$header['tag'].' ';
-				foreach($header['attributes'] as $name=>$value){
+				foreach($header['attributes'] as $name=>$value) {
 					echo "$name='$value' ";
 				};
 				echo '/>';

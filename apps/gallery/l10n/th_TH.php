@@ -1,12 +1,9 @@
 <?php $TRANSLATIONS = array(
 "Pictures" => "รูปภาพ",
-"Settings" => "ตั้งค่า",
-"Rescan" => "ตรวจสอบอีกครั้ง",
-"Stop" => "หยุด",
-"Share" => "แชร์",
-"Back" => "ย้อนกลับ",
-"Remove confirmation" => "การยืนยันการลบ",
-"Do you want to remove album" => "คุณต้องการลบอัลบั้มออกหรือไม่",
-"Change album name" => "เปลี่ยนชื่ออัลบั้ม",
-"New album name" => "ชื่อใหม่ของอัลบั้ม"
+"Galleries" => "แกลอรี่",
+"Share gallery" => "แชร์ข้อมูลแกลอรี่",
+"Error: " => "พบข้อผิดพลาด: ",
+"Internal error" => "เกิดข้อผิดพลาดภายในระบบ",
+"Slideshow" => "ภาพสไลด์โชว์",
+"The \"Image Viewer\" application also need to be enabled to use this application." => "แอพพลิเคชั่น \"ตัวเปิดดูรูปภาพ\" จำเป็นได้รับการเปิดใช้งานเพื่อใช้แอพพลิเคชั่นนี้ด้วยเช่นกัน"
 );

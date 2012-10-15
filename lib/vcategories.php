@@ -55,7 +55,10 @@ class OC_VCategories {
 		$this->app = $app;
 		$this->user = is_null($user) ? OC_User::getUser() : $user;
 		$categories = trim(OC_Preferences::getValue($this->user, $app, self::PREF_CATEGORIES_LABEL, ''));
-		$this->categories = $categories != '' ? unserialize($categories) : $defcategories;
+		if ($categories) {
+			$categories = @unserialize($categories);
+		}
+		$this->categories = is_array($categories) ? $categories : $defcategories;
 	}
 
 	/**
@@ -64,6 +67,9 @@ class OC_VCategories {
 	*/
 	public function categories() {
 		//OC_Log::write('core','OC_VCategories::categories: '.print_r($this->categories, true), OC_Log::DEBUG);
+		if(!$this->categories) {
+			return array();
+		}
 		usort($this->categories, 'strnatcasecmp'); // usort to also renumber the keys
 		return $this->categories;
 	}
@@ -118,26 +124,27 @@ class OC_VCategories {
 	* To get the object array, do something like:
 	*	// For Addressbook:
 	*	$categories = new OC_VCategories('contacts');
-	*	$stmt = OC_DB::prepare( 'SELECT carddata FROM *PREFIX*contacts_cards' );
+	*	$stmt = OC_DB::prepare( 'SELECT `carddata` FROM `*PREFIX*contacts_cards`' );
 	*	$result = $stmt->execute();
 	*	$objects = array();
 	*	if(!is_null($result)) {
-	*		while( $row = $result->fetchRow()){
+	*		while( $row = $result->fetchRow()) {
 	*			$objects[] = $row['carddata'];
 	*		}
 	*	}
-	* 	$categories->rescan($objects);
+	*	$categories->rescan($objects);
 	*/
-	public function rescan($objects, $sync=true) {
-		$this->categories = array();
+	public function rescan($objects, $sync=true, $reset=true) {
+		if($reset === true) {
+			$this->categories = array();
+		}
 		foreach($objects as $object) {
 			//OC_Log::write('core','OC_VCategories::rescan: '.substr($object, 0, 100).'(...)', OC_Log::DEBUG);
 			$vobject = OC_VObject::parse($object);
 			if(!is_null($vobject)) {
 				$this->loadFromVObject($vobject, $sync);
-				unset($vobject);
 			} else {
-				OC_Log::write('core','OC_VCategories::rescan, unable to parse. ID: '.', '.substr($object, 0, 100).'(...)', OC_Log::DEBUG);				
+				OC_Log::write('core','OC_VCategories::rescan, unable to parse. ID: '.', '.substr($object, 0, 100).'(...)', OC_Log::DEBUG);
 			}
 		}
 		$this->save();
@@ -179,7 +186,7 @@ class OC_VCategories {
 		if(!is_null($objects)) {
 			foreach($objects as $key=>&$value) {
 				$vobject = OC_VObject::parse($value[1]);
-				if(!is_null($vobject)){
+				if(!is_null($vobject)) {
 					$categories = $vobject->getAsArray('CATEGORIES');
 					//OC_Log::write('core','OC_VCategories::delete, before: '.$key.': '.print_r($categories, true), OC_Log::DEBUG);
 					foreach($names as $name) {
@@ -204,13 +211,18 @@ class OC_VCategories {
 
 	// case-insensitive in_array
 	private function in_arrayi($needle, $haystack) {
+		if(!is_array($haystack)) {
+			return false;
+		}
 		return in_array(strtolower($needle), array_map('strtolower', $haystack));
 	}
 
 	// case-insensitive array_search
 	private function array_searchi($needle, $haystack) {
-		return array_search(strtolower($needle),array_map('strtolower',$haystack)); 
+		if(!is_array($haystack)) {
+			return false;
+		}
+		return array_search(strtolower($needle),array_map('strtolower',$haystack));
 	}
 
 }
-?>

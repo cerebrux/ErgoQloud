@@ -1,13 +1,13 @@
 <?php
 /**
- * Copyright (c) 2010 Frank Karlitschek karlitschek@kde.org
+ * Copyright (c) 2012 Frank Karlitschek frank@owncloud.org
  * This file is licensed under the Affero General Public License version 3 or
  * later.
  * See the COPYING-README file.
 */
 
 $RUNTIME_NOAPPS = TRUE; //no apps
-require_once('../../lib/base.php');
+require_once '../../lib/base.php';
 
 // Someone wants to reset their password:
 if(isset($_GET['token']) && isset($_GET['user']) && OC_Preferences::getValue($_GET['user'], 'owncloud', 'lostpassword') === $_GET['token']) {

@@ -9,7 +9,7 @@ echo 'Calendar.UI.Share.idtype = "event";' . "\n" . 'Calendar.UI.Share.currentid
 	<li><a href="#tabs-2"><?php echo $l->t('Repeating'); ?></a></li>
 	<!--<li><a href="#tabs-3"><?php echo $l->t('Alarm'); ?></a></li>
 	<li><a href="#tabs-4"><?php echo $l->t('Attendees'); ?></a></li>-->
-	<?php if($_['access'] == 'owner' && $_['eventid'] != 'new') { ?>
+	<?php if($_['eventid'] != 'new' && $_['permissions'] & OCP\Share::PERMISSION_SHARE) { ?>
 	<li><a href="#tabs-5"><?php echo $l->t('Share'); ?></a></li>
 	<?php } ?>
 </ul>
@@ -18,7 +18,7 @@ echo 'Calendar.UI.Share.idtype = "event";' . "\n" . 'Calendar.UI.Share.currentid
 		<tr>
 			<th width="75px"><?php echo $l->t("Title");?>:</th>
 			<td>
-				<input type="text" style="width:350px;" size="100" placeholder="<?php echo $l->t("Title of the Event");?>" value="<?php echo isset($_['title']) ? htmlspecialchars($_['title']) : '' ?>" maxlength="100" name="title"/>
+				<input type="text" style="width:350px;" size="100" placeholder="<?php echo $l->t("Title of the Event");?>" value="<?php echo isset($_['title']) ? $_['title'] : '' ?>" maxlength="100" name="title"/>
 			</td>
 		</tr>
 	</table>
@@ -26,7 +26,7 @@ echo 'Calendar.UI.Share.idtype = "event";' . "\n" . 'Calendar.UI.Share.currentid
 		<tr>
 			<th width="75px"><?php echo $l->t("Category");?>:</th>
 			<td>
-				<input id="category" name="categories" type="text" placeholder="<?php echo $l->t('Separate categories with commas'); ?>" value="<?php echo isset($_['categories']) ? htmlspecialchars($_['categories']) : '' ?>">
+				<input id="category" name="categories" type="text" placeholder="<?php echo $l->t('Separate categories with commas'); ?>" value="<?php echo isset($_['categories']) ? $_['categories'] : '' ?>">
 				<a class="action edit" onclick="$(this).tipsy('hide');OCCategories.edit();" title="<?php echo $l->t('Edit categories'); ?>"><img alt="<?php echo $l->t('Edit categories'); ?>" src="<?php echo OCP\image_path('core','actions/rename.svg')?>" class="svg action" style="width: 16px; height: 16px;"></a>
 			</td>
 			<?php if(count($_['calendar_options']) > 1) { ?>
@@ -52,7 +52,7 @@ echo 'Calendar.UI.Share.idtype = "event";' . "\n" . 'Calendar.UI.Share.currentid
 		<tr>
 			<th width="75px"></th>
 			<td>
-				<input onclick="Calendar.UI.lockTime();" type="checkbox"<?php if($_['allday']){echo 'checked="checked"';} ?> id="allday_checkbox" name="allday">
+				<input onclick="Calendar.UI.lockTime();" type="checkbox"<?php if($_['allday']) {echo 'checked="checked"';} ?> id="allday_checkbox" name="allday">
 				<label for="allday_checkbox"><?php echo $l->t("All Day Event");?></label>
 			</td>
 		</tr>
@@ -80,7 +80,7 @@ echo 'Calendar.UI.Share.idtype = "event";' . "\n" . 'Calendar.UI.Share.currentid
 			<tr>
 				<th width="85px"><?php echo $l->t("Location");?>:</th>
 				<td>
-					<input type="text" style="width:350px;" size="100" placeholder="<?php echo $l->t("Location of the Event");?>" value="<?php echo isset($_['location']) ? htmlspecialchars($_['location']) : '' ?>" maxlength="100"  name="location" />
+					<input type="text" style="width:350px;" size="100" placeholder="<?php echo $l->t("Location of the Event");?>" value="<?php echo isset($_['location']) ? $_['location'] : '' ?>" maxlength="100"  name="location" />
 				</td>
 			</tr>
 		</table>
@@ -88,7 +88,7 @@ echo 'Calendar.UI.Share.idtype = "event";' . "\n" . 'Calendar.UI.Share.currentid
 			<tr>
 				<th width="85px" style="vertical-align: top;"><?php echo $l->t("Description");?>:</th>
 				<td>
-					<textarea style="width:350px;height: 150px;" placeholder="<?php echo $l->t("Description of the Event");?>" name="description"><?php echo isset($_['description']) ? htmlspecialchars($_['description']) : '' ?></textarea>
+					<textarea style="width:350px;height: 150px;" placeholder="<?php echo $l->t("Description of the Event");?>" name="description"><?php echo isset($_['description']) ? $_['description'] : '' ?></textarea>
 				</td>
 			</tr>
 		</table>
@@ -222,7 +222,7 @@ echo 'Calendar.UI.Share.idtype = "event";' . "\n" . 'Calendar.UI.Share.currentid
 						<select id="end" name="end">
 							<?php
 							if($_['repeat_end'] == '') $_['repeat_end'] = 'never';
-							echo OCP\html_select_options($_['repeat_end_options'], $_['repeat_end']); 
+							echo OCP\html_select_options($_['repeat_end_options'], $_['repeat_end']);
 							?>
 						</select>
 					</td>
@@ -244,8 +244,8 @@ echo 'Calendar.UI.Share.idtype = "event";' . "\n" . 'Calendar.UI.Share.currentid
 </div>
 <!--<div id="tabs-3">//Alarm</div>
 <div id="tabs-4">//Attendees</div>-->
-<?php if($_['access'] == 'owner') { ?>
+<?php if($_['eventid'] != 'new' && $_['permissions'] & OCP\Share::PERMISSION_SHARE) { ?>
 <div id="tabs-5">
-	<?php if($_['eventid'] != 'new'){ echo $this->inc('share.dropdown'); } ?>
+	<?php if($_['eventid'] != 'new') { echo $this->inc('part.share'); } ?>
 </div>
 <?php } ?>

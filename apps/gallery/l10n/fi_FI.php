@@ -1,12 +1,9 @@
 <?php $TRANSLATIONS = array(
 "Pictures" => "Kuvat",
-"Settings" => "Asetukset",
-"Rescan" => "Etsi uusia",
-"Stop" => "Pysäytä",
-"Share" => "Jaa",
-"Back" => "Takaisin",
-"Remove confirmation" => "Poiston vahvistus",
-"Do you want to remove album" => "Tahdotko poistaa albumin",
-"Change album name" => "Muuta albumin nimeä",
-"New album name" => "Uuden albumin nimi"
+"Galleries" => "Galleriat",
+"Share gallery" => "Jaa galleria",
+"Error: " => "Virhe: ",
+"Internal error" => "Sisäinen virhe",
+"Slideshow" => "Diaesitys",
+"The \"Image Viewer\" application also need to be enabled to use this application." => "Kuvankatselusovellus tulee olla käytössä, jotta tätä sovellusta on mahdollista käyttää."
 );

@@ -6,12 +6,10 @@
  * See the COPYING-README file.
  */
 
- 
+
 OCP\JSON::checkLoggedIn();
 OCP\JSON::checkAppEnabled('contacts');
 
 $categories = OC_Contacts_App::getCategories();
 
 OCP\JSON::success(array('data' => array('categories'=>$categories)));
-
-?>

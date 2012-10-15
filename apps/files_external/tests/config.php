@@ -37,4 +37,19 @@ return array(
 		'share'=>'/test',
 		'root'=>'/test/',
 	),
+	'amazons3'=>array(
+		'run'=>false,
+		'key'=>'test',
+		'secret'=>'test',
+		'bucket'=>'bucket',
+	),
+	'dropbox' => array (
+		'run'=>false,
+		'root'=>'owncloud',
+		'configured' => 'true',
+		'app_key' => '',
+		'app_secret' => '',
+		'token' => '',
+		'token_secret' => ''
+	)
 );
