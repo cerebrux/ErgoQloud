@@ -262,6 +262,9 @@ class OC_Calendar_Object{
 		$stmt = OCP\DB::prepare( 'DELETE FROM `*PREFIX*calendar_objects` WHERE `id` = ?' );
 		$stmt->execute(array($id));
 		OC_Calendar_Calendar::touchCalendar($oldobject['calendarid']);
+
+		OCP\Share::unshareAll('event', $id);
+		
 		OCP\Util::emitHook('OC_Calendar', 'deleteEvent', $id);
 
 		return true;
@@ -936,9 +939,11 @@ class OC_Calendar_Object{
 			$timezone = OC_Calendar_App::getTimezone();
 			$timezone = new DateTimeZone($timezone);
 			$start = new DateTime($from.' '.$fromtime, $timezone);
+			$start->setTimezone(new DateTimeZone('UTC'));
 			$end = new DateTime($to.' '.$totime, $timezone);
-			$vevent->setDateTime('DTSTART', $start, Sabre_VObject_Property_DateTime::LOCALTZ);
-			$vevent->setDateTime('DTEND', $end, Sabre_VObject_Property_DateTime::LOCALTZ);
+			$end->setTimezone(new DateTimeZone('UTC'));
+			$vevent->setDateTime('DTSTART', $start, Sabre_VObject_Property_DateTime::UTC);
+			$vevent->setDateTime('DTEND', $end, Sabre_VObject_Property_DateTime::UTC);
 		}
 		unset($vevent->DURATION);
 

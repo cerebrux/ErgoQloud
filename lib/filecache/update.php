@@ -174,7 +174,9 @@ class OC_FileCache_Update{
 		}else{
 			$size=OC_FileCache::scanFile($path, $root);
 		}
-		OC_FileCache::increaseSize(dirname($path), $size-$cachedSize, $root);
+		if($path !== '' and $path !== '/'){
+			OC_FileCache::increaseSize(dirname($path), $size-$cachedSize, $root);
+		}
 	}
 
 	/**
@@ -213,5 +215,13 @@ class OC_FileCache_Update{
 		OC_FileCache::increaseSize(dirname($oldPath), -$oldSize, $root);
 		OC_FileCache::increaseSize(dirname($newPath), $oldSize, $root);
 		OC_FileCache::move($oldPath, $newPath);
+	}
+
+	/**
+	 * delete files owned by user from the cache
+	 * @param string $parameters$parameters["uid"])
+	 */
+	public static function deleteFromUser($parameters) {
+		OC_FileCache::clear($parameters["uid"]);
 	}
 }

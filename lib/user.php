@@ -210,6 +210,10 @@ class OC_User {
 			}
 			// Delete the user's keys in preferences
 			OC_Preferences::deleteUser($uid);
+
+			// Delete user files in /data/
+			OC_Helper::rmdirr(OC_Config::getValue( "datadirectory", OC::$SERVERROOT."/data" ) . '/'.$uid.'/');
+
 			// Emit and exit
 			OC_Hook::emit( "OC_User", "post_deleteUser", array( "uid" => $uid ));
 			return true;
@@ -473,7 +477,7 @@ class OC_User {
 	public static function setMagicInCookie($username, $token) {
 		$secure_cookie = OC_Config::getValue("forcessl", false);
 		setcookie("oc_username", $username, time()+60*60*24*15, '', '', $secure_cookie);
-		setcookie("oc_token", $token, time()+60*60*24*15, '', '', $secure_cookie);
+		setcookie("oc_token", $token, time()+60*60*24*15, '', '', $secure_cookie, true);
 		setcookie("oc_remember_login", true, time()+60*60*24*15, '', '', $secure_cookie);
 	}
 

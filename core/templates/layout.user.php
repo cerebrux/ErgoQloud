@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<title><?php echo isset($_['application']) && !empty($_['application'])?$_['application'].' | ':'' ?>ErgoQloud <?php echo OC_User::getUser()?' ('.OC_User::getUser().') ':'' ?></title>
-		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<link rel="shortcut icon" href="<?php echo image_path('', 'favicon.png'); ?>" /><link rel="apple-touch-icon-precomposed" href="<?php echo image_path('', 'favicon-touch.png'); ?>" />
 		<?php foreach($_['cssfiles'] as $cssfile): ?>
 			<link rel="stylesheet" href="<?php echo $cssfile; ?>" type="text/css" media="screen" />

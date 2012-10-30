@@ -193,6 +193,7 @@ class OC{
 	public static function checkSSL() {
 		// redirect to https site if configured
 		if( OC_Config::getValue( "forcessl", false )) {
+			header('Strict-Transport-Security: max-age=31536000');
 			ini_set("session.cookie_secure", "on");
 			if(OC_Request::serverProtocol()<>'https' and !OC::$CLI) {
 				$url = "https://". OC_Request::serverHost() . $_SERVER['REQUEST_URI'];
@@ -281,7 +282,7 @@ class OC{
 		ini_set('arg_separator.output', '&amp;');
 
 		// try to switch magic quotes off.
-		if(function_exists('set_magic_quotes_runtime')) {
+		if(get_magic_quotes_gpc()) {
 			@set_magic_quotes_runtime(false);
 		}
 

@@ -65,7 +65,7 @@ class OC_FileCache{
 		if($root===false) {
 			$root=OC_Filesystem::getRoot();
 		}
-		$fullpath=$root.$path;
+		$fullpath=OC_Filesystem::normalizePath($root.'/'.$path);
 		$parent=self::getParentId($fullpath);
 		$id=self::getId($fullpath,'');
 		if(isset(OC_FileCache_Cached::$savedData[$fullpath])) {
@@ -79,7 +79,7 @@ class OC_FileCache{
 
 		// add parent directory to the file cache if it does not exist yet.
 		if ($parent == -1 && $fullpath != $root) {
-			$parentDir = substr(dirname($path), 0, strrpos(dirname($path), DIRECTORY_SEPARATOR));
+			$parentDir = dirname($path);
 			self::scanFile($parentDir);
 			$parent = self::getParentId($fullpath);
 		}
@@ -203,7 +203,7 @@ class OC_FileCache{
 
 		OC_Cache::remove('fileid/'.$root.$path);
 	}
-
+	
 	/**
 	 * return array of filenames matching the querty
 	 * @param string $query
@@ -509,3 +509,4 @@ class OC_FileCache{
 OC_Hook::connect('OC_Filesystem','post_write','OC_FileCache_Update','fileSystemWatcherWrite');
 OC_Hook::connect('OC_Filesystem','post_delete','OC_FileCache_Update','fileSystemWatcherDelete');
 OC_Hook::connect('OC_Filesystem','post_rename','OC_FileCache_Update','fileSystemWatcherRename');
+OC_Hook::connect('OC_User','post_deleteUser','OC_FileCache_Update','deleteFromUser');
