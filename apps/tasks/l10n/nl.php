@@ -1,9 +1,6 @@
 <?php $TRANSLATIONS = array(
 "Invalid date/time" => "Ongeldige datum/tijd",
 "Tasks" => "Taken",
-"Due" => "Einddatum",
-"List" => "Categorie",
-"Location" => "Locatie",
 "No category" => "Geen categorie",
 "Unspecified" => "Niet gespecificeerd",
 "1=highest" => "1=hoogste",

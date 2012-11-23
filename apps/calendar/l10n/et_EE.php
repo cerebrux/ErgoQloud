@@ -12,7 +12,6 @@
 "Timezone changed" => "Ajavöönd on muudetud",
 "Invalid request" => "Vigane päring",
 "Calendar" => "Kalender",
-"Deletion failed" => "Kustutamine ebaõnnestus",
 "user" => "kasutaja",
 "group" => "grupp",
 "Editable" => "Muudetav",

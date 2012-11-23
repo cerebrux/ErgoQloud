@@ -13,6 +13,8 @@
 "Invalid request" => "Cerere eronată",
 "Calendar" => "Calendar",
 "Deletion failed" => "Ștergerea a eșuat",
+"ddd d MMMM[ yyyy]{ -[ddd d] MMMM yyyy}" => "ddd d MMMM[ yyyy]{ -[ddd d] MMMM yyyy}",
+"ddd d MMMM[ yyyy] HH:mm{ -[ ddd d MMMM yyyy] HH:mm}" => "ddd d MMMM[ yyyy] HH:mm{ -[ ddd d MMMM yyyy] HH:mm}",
 "user" => "utilizator",
 "group" => "grup",
 "Editable" => "Editabil",

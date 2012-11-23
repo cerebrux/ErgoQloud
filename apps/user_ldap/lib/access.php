@@ -38,9 +38,11 @@ abstract class Access {
 	 * @brief reads a given attribute for an LDAP record identified by a DN
 	 * @param $dn the record in question
 	 * @param $attr the attribute that shall be retrieved
-	 * @returns the values in an array on success, false otherwise
+	 *        if empty, just check the record's existence
+	 * @returns an array of values on success or an empty
+	 *          array if $attr is empty, false otherwise
 	 *
-	 * Reads an attribute from an LDAP entry
+	 * Reads an attribute from an LDAP entry or check if entry exists
 	 */
 	public function readAttribute($dn, $attr) {
 		if(!$this->checkConnection()) {
@@ -55,9 +57,13 @@ abstract class Access {
 		}
 		$rr = @ldap_read($cr, $dn, 'objectClass=*', array($attr));
 		if(!is_resource($rr)) {
-			\OCP\Util::writeLog('user_ldap', 'readAttribute '.$attr.' failed for DN '.$dn, \OCP\Util::DEBUG);
+			\OCP\Util::writeLog('user_ldap', 'readAttribute failed for DN '.$dn, \OCP\Util::DEBUG);
 			//in case an error occurs , e.g. object does not exist
 			return false;
+		}
+		if (empty($attr)) {
+			\OCP\Util::writeLog('user_ldap', 'readAttribute: '.$dn.' found', \OCP\Util::DEBUG);
+			return array();
 		}
 		$er = ldap_first_entry($cr, $rr);
 		//LDAP attributes are not case sensitive
@@ -67,7 +73,13 @@ abstract class Access {
 		if(isset($result[$attr]) && $result[$attr]['count'] > 0) {
 			$values = array();
 			for($i=0;$i<$result[$attr]['count'];$i++) {
-				$values[] = $this->resemblesDN($attr) ? $this->sanitizeDN($result[$attr][$i]) : $result[$attr][$i];
+				if($this->resemblesDN($attr)) {
+					$values[] = $this->sanitizeDN($result[$attr][$i]);
+				} elseif(strtolower($attr) == 'objectguid') {
+					$values[] = $this->convertObjectGUID2Str($result[$attr][$i]);
+				} else {
+					$values[] = $result[$attr][$i];
+				}
 			}
 			return $values;
 		}
@@ -504,6 +516,12 @@ abstract class Access {
 		$link_resource = $this->connection->getConnectionResource();
 		if(is_resource($link_resource)) {
 			$sr = ldap_search($link_resource, $base, $filter, $attr);
+			if(!is_resource($sr)) {
+				$errmsg  = '('.ldap_errno($link_resource).') ' . ldap_error($link_resource);
+				$errmsg .= ', search filter: ' . $filter;
+				\OCP\Util::writeLog('user_ldap', 'Search: no result resource, LDAP error message: ' . $errmsg, \OCP\Util::ERROR);
+				return array();
+			}
 			$findings = ldap_get_entries($link_resource, $sr );
 
 			// if we're here, probably no connection resource is returned.
@@ -679,5 +697,33 @@ abstract class Access {
 			$uuid = false;
 		}
 		return $uuid;
+	}
+
+	/**
+	 * @brief converts a binary ObjectGUID into a string representation
+	 * @param $oguid the ObjectGUID in it's binary form as retrieved from AD
+	 * @returns String
+	 *
+	 * converts a binary ObjectGUID into a string representation
+	 * http://www.php.net/manual/en/function.ldap-get-values-len.php#73198
+	 */
+	private function convertObjectGUID2Str($oguid) {
+		$hex_guid = bin2hex($oguid);
+		$hex_guid_to_guid_str = '';
+		for($k = 1; $k <= 4; ++$k) {
+			$hex_guid_to_guid_str .= substr($hex_guid, 8 - 2 * $k, 2);
+		}
+		$hex_guid_to_guid_str .= '-';
+		for($k = 1; $k <= 2; ++$k) {
+			$hex_guid_to_guid_str .= substr($hex_guid, 12 - 2 * $k, 2);
+		}
+		$hex_guid_to_guid_str .= '-';
+		for($k = 1; $k <= 2; ++$k) {
+			$hex_guid_to_guid_str .= substr($hex_guid, 16 - 2 * $k, 2);
+		}
+		$hex_guid_to_guid_str .= '-' . substr($hex_guid, 16, 4);
+		$hex_guid_to_guid_str .= '-' . substr($hex_guid, 20);
+
+		return strtoupper($hex_guid_to_guid_str);
 	}
 }

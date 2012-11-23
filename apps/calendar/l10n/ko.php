@@ -12,7 +12,6 @@
 "Timezone changed" => "시간대 변경됨",
 "Invalid request" => "잘못된 요청",
 "Calendar" => "달력",
-"Deletion failed" => "삭제 실패",
 "Editable" => "편집 가능",
 "ddd" => "ddd",
 "ddd M/d" => "ddd M/d",

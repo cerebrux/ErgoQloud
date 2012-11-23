@@ -106,32 +106,36 @@ Calendar={
 				function(data){
 					Calendar.UI.loading(false);
 					if(data.status == "error"){
-						var output = missing_field + ": <br />";
-						if(data.title == "true"){
-							output = output + missing_field_title + "<br />";
+						if(data.data.message) {
+							$('#errorbox').html(data.data.message);
+						} else {
+							var output = missing_field + ": <br />";
+							if(data.title == "true"){
+								output = output + missing_field_title + "<br />";
+							}
+							if(data.cal == "true"){
+								output = output + missing_field_calendar + "<br />";
+							}
+							if(data.from == "true"){
+								output = output + missing_field_fromdate + "<br />";
+							}
+							if(data.fromtime == "true"){
+								output = output + missing_field_fromtime + "<br />";
+							}
+							if(data.to == "true"){
+								output = output + missing_field_todate + "<br />";
+							}
+							if(data.totime == "true"){
+								output = output + missing_field_totime + "<br />";
+							}
+							if(data.endbeforestart == "true"){
+								output = output + missing_field_startsbeforeends + "!<br/>";
+							}
+							if(data.dberror == "true"){
+								output = "There was a database fail!";
+							}
+							$('#errorbox').html(output);
 						}
-						if(data.cal == "true"){
-							output = output + missing_field_calendar + "<br />";
-						}
-						if(data.from == "true"){
-							output = output + missing_field_fromdate + "<br />";
-						}
-						if(data.fromtime == "true"){
-							output = output + missing_field_fromtime + "<br />";
-						}
-						if(data.to == "true"){
-							output = output + missing_field_todate + "<br />";
-						}
-						if(data.totime == "true"){
-							output = output + missing_field_totime + "<br />";
-						}
-						if(data.endbeforestart == "true"){
-							output = output + missing_field_startsbeforeends + "!<br/>";
-						}
-						if(data.dberror == "true"){
-							output = "There was a database fail!";
-						}
-						$("#errorbox").html(output);
 					} else
 					if(data.status == 'success'){
 						$('#event').dialog('destroy').remove();
@@ -182,9 +186,9 @@ Calendar={
 		},
 		getEventPopupText:function(event){
 			if (event.allDay){
-				var timespan = $.fullCalendar.formatDates(event.start, event.end, 'ddd d MMMM[ yyyy]{ - [ddd d] MMMM yyyy}', {monthNamesShort: monthNamesShort, monthNames: monthNames, dayNames: dayNames, dayNamesShort: dayNamesShort}); //t('calendar', "ddd d MMMM[ yyyy]{ - [ddd d] MMMM yyyy}")
+				var timespan = $.fullCalendar.formatDates(event.start, event.end, 'ddd d MMMM[ yyyy]{ -[ddd d] MMMM yyyy}', {monthNamesShort: monthNamesShort, monthNames: monthNames, dayNames: dayNames, dayNamesShort: dayNamesShort}); //t('calendar', "ddd d MMMM[ yyyy]{ -[ddd d] MMMM yyyy}")
 			}else{
-				var timespan = $.fullCalendar.formatDates(event.start, event.end, 'ddd d MMMM[ yyyy] ' + defaulttime + '{ - [ ddd d MMMM yyyy]' + defaulttime + '}', {monthNamesShort: monthNamesShort, monthNames: monthNames, dayNames: dayNames, dayNamesShort: dayNamesShort}); //t('calendar', "ddd d MMMM[ yyyy] HH:mm{ - [ ddd d MMMM yyyy] HH:mm}")
+				var timespan = $.fullCalendar.formatDates(event.start, event.end, 'ddd d MMMM[ yyyy] ' + defaulttime + '{ -[ ddd d MMMM yyyy]' + defaulttime + '}', {monthNamesShort: monthNamesShort, monthNames: monthNames, dayNames: dayNames, dayNamesShort: dayNamesShort}); //t('calendar', "ddd d MMMM[ yyyy] HH:mm{ -[ ddd d MMMM yyyy] HH:mm}")
 				// Tue 18 October 2011 08:00 - 16:00
 			}
 			var html =
@@ -851,7 +855,6 @@ $(document).ready(function(){
 		eventDrop: Calendar.UI.moveEvent,
 		eventResize: Calendar.UI.resizeEvent,
 		eventRender: function(event, element) {
-			element.find('.fc-event-title').text($("<div/>").html(event.title).text())
 			element.tipsy({
 				className: 'tipsy-event',
 				opacity: 0.9,

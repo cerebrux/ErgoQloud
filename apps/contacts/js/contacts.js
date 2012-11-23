@@ -189,18 +189,19 @@ OC.Contacts={
 		$('#edit_name').click(function(){OC.Contacts.Card.editName()});
 		$('#edit_name').keydown(function(){OC.Contacts.Card.editName()});
 
+		var phototools = $('#phototools');
 		$('#phototools li a').click(function() {
-		$(this).tipsy('hide');
+			$(this).tipsy('hide');
 		});
 		$('#contacts_details_photo_wrapper').hover(
 			function () {
-				$('#phototools').slideDown(200);
+				phototools.slideDown(200);
 			},
 			function () {
-				$('#phototools').slideUp(200);
+				phototools.slideUp(200);
 			}
 		);
-		$('#phototools').hover(
+		phototools.hover(
 			function () {
 				$(this).removeClass('transparent');
 			},
@@ -208,12 +209,23 @@ OC.Contacts={
 				$(this).addClass('transparent');
 			}
 		);
-		$('#phototools .upload').click(function() {
+		phototools.find('.upload').click(function() {
 			$('#file_upload_start').trigger('click');
 		});
-		$('#phototools .cloud').click(function() {
+		phototools.find('.cloud').click(function() {
 			OC.dialogs.filepicker(t('contacts', 'Select photo'), OC.Contacts.Card.cloudPhotoSelected, false, 'image', true);
 		});
+		phototools.find('.delete').click(function() {
+			$(this).tipsy('hide');
+			OC.Contacts.Card.deleteProperty(phototools, 'single');
+			$(this).hide();
+		});
+		phototools.find('.edit').click(function() {
+			$(this).tipsy('hide');
+			OC.Contacts.Card.editCurrentPhoto();
+		});
+		phototools.find('li a').tipsy();
+
 		/* Initialize the photo edit dialog */
 		$('#edit_photo_dialog').dialog({
 			autoOpen: false, modal: true, height: 'auto', width: 'auto'
@@ -783,6 +795,11 @@ OC.Contacts={
 					},'json');
 			} else { // add
 					//console.log('Adding: ' + q);
+					// Don't sumbit type before the property value is saved.
+					if($(obj).is(':checkbox') || $(obj).is('select')) {
+						OC.Contacts.loading(obj, false);
+						return;
+					}
 					$(obj).attr('disabled', 'disabled');
 					$.post(OC.filePath('contacts', 'ajax', 'contact/addproperty.php'),q,function(jsondata){
 						if(jsondata.status == 'success'){
@@ -849,7 +866,6 @@ OC.Contacts={
 			}
 		},
 		deleteProperty:function(obj, type) {
-			//console.log('deleteProperty');
 			if(!this.enabled) {
 				return;
 			}
@@ -1204,6 +1220,8 @@ OC.Contacts={
 				adrtxt = adrtxt + '<li>' + adr[6] + '</li>';
 			}
 			container.find('.addresslist').html(adrtxt);
+			$('#addresses').show();
+			container.show();
 		},
 		uploadPhoto:function(filelist) {
 			if(!this.enabled) {
@@ -1235,18 +1253,7 @@ OC.Contacts={
 		},
 		loadPhotoHandlers:function() {
 			var phototools = $('#phototools');
-			phototools.find('li a').tipsy('hide');
-			phototools.find('li a').tipsy();
 			if(this.data.PHOTO) {
-				phototools.find('.delete').click(function() {
-					$(this).tipsy('hide');
-					OC.Contacts.Card.deleteProperty($('#contacts_details_photo'), 'single');
-					$(this).hide();
-				});
-				phototools.find('.edit').click(function() {
-					$(this).tipsy('hide');
-					OC.Contacts.Card.editCurrentPhoto();
-				});
 				phototools.find('.delete').show();
 				phototools.find('.edit').show();
 			} else {
@@ -1266,7 +1273,7 @@ OC.Contacts={
 				}
 			});
 		},
-		loadPhoto:function(){
+		loadPhoto:function() {
 			var self = this;
 			var refreshstr = '&refresh='+Math.random();
 			$('#phototools li a').tipsy('hide');
@@ -1279,6 +1286,9 @@ OC.Contacts={
 				$(this).addClass('contacts_details_photo');
 				wrapper.css('width', $(this).get(0).width + 10);
 				wrapper.removeClass('loading').removeClass('wait');
+				if(self.data.PHOTO) {
+					wrapper.data('checksum', self.data.PHOTO[0].checksum);
+				}
 				$(this).insertAfter($('#phototools')).fadeIn();
 			}).error(function () {
 				// notify the user that the image could not be loaded

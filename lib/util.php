@@ -24,6 +24,11 @@ class OC_Util {
 			$user = OC_User::getUser();
 		}
 
+		// load all filesystem apps before, so no setup-hook gets lost
+		if(!isset($RUNTIME_NOAPPS) || !$RUNTIME_NOAPPS) {
+			OC_App::loadApps(array('filesystem'));
+		}
+
 		// the filesystem will finish when $user is not empty,
 		// mark fs setup here to avoid doing the setup from loading
 		// OC_Filesystem
@@ -90,7 +95,7 @@ class OC_Util {
 	 */
 	public static function getVersion() {
 		// hint: We only can count up. So the internal version number of ownCloud 4.5 will be 4.90.0. This is not visible to the user
-		return array(4,90,2);
+		return array(4,90,3);
 	}
 
 	/**
@@ -98,7 +103,7 @@ class OC_Util {
 	 * @return string
 	 */
 	public static function getVersionString() {
-		return '4.5.1a';
+		return '4.5.2';
 	}
 
 	/**
@@ -296,7 +301,10 @@ class OC_Util {
 			$errors[]=array('error'=>'PHP module zlib is not installed.<br/>','hint'=>'Please ask your server administrator to install the module.');
 			$web_server_restart= false;
 		}
-
+		if(!function_exists('iconv')) {
+			$errors[]=array('error'=>'PHP module iconv is not installed.<br/>','hint'=>'Please ask your server administrator to install the module.');
+			$web_server_restart= false;
+		}
 		if(!function_exists('simplexml_load_string')) {
 			$errors[]=array('error'=>'PHP module SimpleXML is not installed.<br/>','hint'=>'Please ask your server administrator to install the module.');
 			$web_server_restart= false;
@@ -541,6 +549,11 @@ class OC_Util {
 
 		// creating a test file
 		$testfile = OC_Config::getValue( "datadirectory", OC::$SERVERROOT."/data" ).'/'.$filename;
+
+		if(file_exists($testfile)){// already running this test, possible recursive call
+			return false;
+		}
+
 		$fp = @fopen($testfile, 'w');
 		@fwrite($fp, $testcontent);
 		@fclose($fp);
