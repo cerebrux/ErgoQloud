@@ -43,6 +43,9 @@ class OC_FileCache{
 	 * - versioned
 	 */
 	public static function get($path,$root=false) {
+		
+		list($path, $root) = self::getSourcePathOfSharedFile($path, $root);
+		
 		if(OC_FileCache_Update::hasUpdated($path,$root)) {
 			if($root===false) {//filesystem hooks are only valid for the default root
 				OC_Hook::emit('OC_Filesystem','post_write',array('path'=>$path));
@@ -124,7 +127,7 @@ class OC_FileCache{
 	private static function update($id,$data) {
 		$arguments=array();
 		$queryParts=array();
-		foreach(array('size','mtime','ctime','mimetype','encrypted','versioned','writable') as $attribute) {
+		foreach(array('size','mtime','ctime','mimetype','encrypted','versioned','writable', 'user') as $attribute) {
 			if(isset($data[$attribute])) {
 				//Convert to int it args are false
 				if($data[$attribute] === false) {
@@ -277,6 +280,9 @@ class OC_FileCache{
 	 * @return int
 	 */
 	public static function getId($path,$root=false) {
+		
+		list($path, $root) = self::getSourcePathOfSharedFile($path, $root);
+			
 		if($root===false) {
 			$root=OC_Filesystem::getRoot();
 		}
@@ -348,21 +354,34 @@ class OC_FileCache{
 	 */
 	public static function increaseSize($path,$sizeDiff, $root=false) {
 		if($sizeDiff==0) return;
-		$id=self::getId($path,$root);
+		$item = OC_FileCache_Cached::get($path);
+		//stop walking up the filetree if we hit a non-folder
+		if($item['mimetype'] !== 'httpd/unix-directory'){
+			return;
+		}
+		$id = $item['id'];
 		while($id!=-1) {//walk up the filetree increasing the size of all parent folders
 			$query=OC_DB::prepare('UPDATE `*PREFIX*fscache` SET `size`=`size`+? WHERE `id`=?');
-			$query->execute(array($sizeDiff,$id));
-			$id=self::getParentId($path);
+			$query->execute(array($sizeDiff, $id));
+			if($path == '' or $path =='/'){
+				return;
+			}
 			$path=dirname($path);
+			$parent = OC_FileCache_Cached::get($path);
+			$id = $parent['id'];
+			//stop walking up the filetree if we hit a non-folder
+			if($parent['mimetype'] !== 'httpd/unix-directory'){
+				return;
+			}
 		}
 	}
 
 	/**
 	 * recursively scan the filesystem and fill the cache
 	 * @param string $path
-	 * @param OC_EventSource $enventSource (optional)
-	 * @param int count (optional)
-	 * @param string root (optional)
+	 * @param OC_EventSource $eventSource (optional)
+	 * @param int $count (optional)
+	 * @param string $root (optional)
 	 */
 	public static function scan($path,$eventSource=false,&$count=0,$root=false) {
 		if($eventSource) {
@@ -503,9 +522,28 @@ class OC_FileCache{
 			$query=OC_DB::prepare('UPDATE `*PREFIX*fscache` SET `mtime`=0 WHERE `user`=? AND `mimetype`= ?  ');
 			$query->execute(array($user,'httpd/unix-directory'));
 		}else{
-			$query=OC_DB::prepare('UPDATE `*PREFIX*fscache` SET `mtime`=0 AND `mimetype`= ? ');
+			$query=OC_DB::prepare('UPDATE `*PREFIX*fscache` SET `mtime`=0 WHERE `mimetype`= ? ');
 			$query->execute(array('httpd/unix-directory'));
 		}
+	}
+	
+	/**
+	 * get the real path and the root of a shared file
+	 * @param string $path
+	 * @return array with the path and the root of the give file
+	 */
+	private static function getSourcePathOfSharedFile($path, $root) {
+		if ( OC_App::isEnabled('files_sharing')) {
+			$fullPath = OC_Filesystem::normalizePath($root.'/'.$path);
+			$sharedPos =  strpos($fullPath, '/Shared/');
+			if ( $sharedPos !== false && ($source = OC_Files_Sharing_Util::getSourcePath(substr($fullPath, $sharedPos+8))) ) {
+				$parts = explode('/', $source, 4);
+				$root =  '/'.$parts[1].'/files';
+				$path = '/'.$parts[3];
+			}
+		}
+		
+		return array($path, $root);
 	}
 }
 

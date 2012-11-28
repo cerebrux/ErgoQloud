@@ -24,7 +24,7 @@ class OC_Share_Backend_Event implements OCP\Share_Backend {
 		if(!self::$event) {
 			self::$event = OC_Calendar_Object::find($itemSource);
 		}
-		return self::$event['summary'] .= ' (' . OC_Calendar_App::$l10n->t('by') .  ' ' . OC_Calendar_Object::getowner(self::$event['id']) . ')';;
+		return self::$event['summary'];
 	}
 
 	public function formatItems($items, $format, $parameters = null) {
@@ -32,6 +32,9 @@ class OC_Share_Backend_Event implements OCP\Share_Backend {
 		if ($format == self::FORMAT_EVENT) {
 			foreach ($items as $item) {
 				$event = OC_Calendar_Object::find($item['item_source']);
+				if(!$event) {
+					continue;
+				}
 				$event['summary'] = $item['item_target'];
 				$event['permissions'] = $item['permissions'];
 				$events[] = $event;

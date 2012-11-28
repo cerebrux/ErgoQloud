@@ -25,6 +25,18 @@ Files={
 			delete uploadingFiles[index];
 		});
 		procesSelection();
+	},
+	containsInvalidCharacters:function (name) {
+		var invalid_characters = ['\\', '/', '<', '>', ':', '"', '|', '?', '*'];
+		for (var i = 0; i < invalid_characters.length; i++) {
+			if (name.indexOf(invalid_characters[i]) != -1) {
+				$('#notification').text(t('files', "Invalid name, '\\', '/', '<', '>', ':', '\"', '|', '?' and '*' are not allowed."));
+				$('#notification').fadeIn();
+				return true;
+			}
+		}
+		$('#notification').fadeOut();
+		return false;
 	}
 };
 $(document).ready(function() {
@@ -199,7 +211,7 @@ $(document).ready(function() {
 	$(document).bind('drop dragover', function (e) {
 			e.preventDefault(); // prevent browser from doing anything, if file isn't dropped in dropZone
 	});
-	 
+
 	if ( document.getElementById("data-upload-form") ) {
 	$(function() {
 		$('.file_upload_start').fileupload({
@@ -233,7 +245,12 @@ $(document).ready(function() {
 						}
 					});
 				}else{
-					var date=new Date();
+                    var dropTarget = $(e.originalEvent.target).closest('tr');
+                    if(dropTarget && dropTarget.attr('data-type') === 'dir') { // drag&drop upload to folder
+                        var dirName = dropTarget.attr('data-file')
+                    }
+
+                    var date=new Date();
 					if(files){
 						for(var i=0;i<files.length;i++){
 							if(files[i].size>0){
@@ -286,7 +303,10 @@ $(document).ready(function() {
 								var jqXHR =  $('.file_upload_start').fileupload('send', {files: files[i],
 										formData: function(form) {
 											var formArray = form.serializeArray();
-											formArray[1]['value'] = dirName;
+                                            // array index 0 contains the max files size
+                                            // array index 1 contains the request token
+                                            // array index 2 contains the directory
+											formArray[2]['value'] = dirName;
 											return formArray;
 										}}).success(function(result, textStatus, jqXHR) {
 											var response;
@@ -296,7 +316,13 @@ $(document).ready(function() {
 												$('#notification').fadeIn();
 											}
 											var file=response[0];
+                                            // TODO: this doesn't work if the file name has been changed server side
 											delete uploadingFiles[dirName][file.name];
+                                            if ($.assocArraySize(uploadingFiles[dirName]) == 0) {
+                                                delete uploadingFiles[dirName];
+                                            }
+
+                                            var uploadtext = $('tr').filterAttr('data-type', 'dir').filterAttr('data-file', dirName).find('.uploadtext')
 											var currentUploads = parseInt(uploadtext.attr('currentUploads'));
 											currentUploads -= 1;
 											uploadtext.attr('currentUploads', currentUploads);
@@ -496,12 +522,14 @@ $(document).ready(function() {
 		$(this).append(input);
 		input.focus();
 		input.change(function(){
-			if(type != 'web' && $(this).val().indexOf('/')!=-1){
-				$('#notification').text(t('files','Invalid name, \'/\' is not allowed.'));
-				$('#notification').fadeIn();
-				return;
-			}
-			var name = getUniqueName($(this).val());
+            if (type != 'web' && Files.containsInvalidCharacters($(this).val())) {
+                return;
+            } else if( type == 'folder' && $('#dir').val() == '/' && $(this).val() == 'Shared') {
+                $('#notification').text(t('files','Invalid folder name. Usage of "Shared" is reserved by Owncloud'));
+                $('#notification').fadeIn();
+                return;
+            }
+            var name = getUniqueName($(this).val());
 			if (name != $(this).val()) {
 				FileList.checkName(name, $(this).val(), true);
 				var hidden = true;
@@ -826,7 +854,7 @@ function getSelectedFiles(property){
 			name:$(element).attr('data-file'),
 			mime:$(element).data('mime'),
 			type:$(element).data('type'),
-			size:$(element).data('size'),
+			size:$(element).data('size')
 		};
 		if(property){
 			files.push(file[property]);
@@ -863,7 +891,7 @@ function getMimeIcon(mime, ready){
 	if(getMimeIcon.cache[mime]){
 		ready(getMimeIcon.cache[mime]);
 	}else{
-		$.get( OC.filePath('files','ajax','mimeicon.php')+'?mime='+mime, function(path){
+		$.get( OC.filePath('files','ajax','mimeicon.php')+'&mime='+mime, function(path){
 			getMimeIcon.cache[mime]=path;
 			ready(getMimeIcon.cache[mime]);
 		});

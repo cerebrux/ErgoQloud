@@ -84,11 +84,15 @@ class OC_Calendar_Object{
 	/**
 	 * @brief Returns an object
 	 * @param integer $id
-	 * @return associative array
+	 * @return associative array or false if entry isn't found.
 	 */
 	public static function find($id) {
 		$stmt = OCP\DB::prepare( 'SELECT * FROM `*PREFIX*calendar_objects` WHERE `id` = ?' );
 		$result = $stmt->execute(array($id));
+
+		if($result->numRows() == 0) {
+			return false;
+		}
 
 		return $result->fetchRow();
 	}
@@ -300,8 +304,8 @@ class OC_Calendar_Object{
 	public static function moveToCalendar($id, $calendarid) {
 		$calendar = OC_Calendar_Calendar::find($calendarid);
 		if ($calendar['userid'] != OCP\User::getUser()) {
-			$sharedCalendar = OCP\Share::getItemSharedWithBySource('calendar', $id);
-			if (!$sharedCalendar || !($sharedCalendar['permissions'] & OCP\Share::PERMISSION_DELETE)) {
+			$sharedCalendar = OCP\Share::getItemSharedWithBySource('calendar', $calendarid);
+			if (!$sharedCalendar || !($sharedCalendar['permissions'] & OCP\Share::PERMISSION_CREATE)) {
 				throw new Exception(
 					OC_Calendar_App::$l10n->t(
 						'You do not have the permissions to add events to this calendar.'
@@ -739,6 +743,9 @@ class OC_Calendar_Object{
 	 * @return boolean
 	 */
 	protected static function checkTime($time) {
+		if(strpos($time, ':') === false ) {
+			return true;
+		}
 		list($hours, $minutes) = explode(':', $time);
 		return empty($time)
 			|| $hours < 0 || $hours > 24

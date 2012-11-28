@@ -137,7 +137,7 @@ var FileList={
 		tr=$('tr').filterAttr('data-file',name);
 		tr.data('renaming',true);
 		td=tr.children('td.filename');
-		input=$('<input class="filename"></input>').val(name);
+		input=$('<input class="filename"/>').val(name);
 		form=$('<form></form>');
 		form.append(input);
 		td.children('a.name').text('');
@@ -147,6 +147,9 @@ var FileList={
 			event.stopPropagation();
 			event.preventDefault();
 			var newname=input.val();
+			if (Files.containsInvalidCharacters(newname)) {
+				return false;
+			}
 			if (newname != name) {
 				if (FileList.checkName(name, newname, false)) {
 					newname = name;
@@ -156,11 +159,11 @@ var FileList={
 							OC.dialogs.alert(result.data.message, 'Error moving file');
 							newname = name;
 						}
-						tr.data('renaming',false);
 					});
 					
 				}
 			}
+			tr.data('renaming',false);
 			tr.attr('data-file', newname);
 			var path = td.children('a.name').attr('href');
 			td.children('a.name').attr('href', path.replace(encodeURIComponent(name), encodeURIComponent(newname)));

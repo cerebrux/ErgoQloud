@@ -128,15 +128,18 @@ class OC_Connector_Sabre_Directory extends OC_Connector_Sabre_Node implements Sa
 		}
 		$properties = array_fill_keys($paths, array());
 		if(count($paths)>0) {
-			$placeholders = join(',', array_fill(0, count($paths), '?'));
-			$query = OC_DB::prepare( 'SELECT * FROM `*PREFIX*properties` WHERE `userid` = ?' . ' AND `propertypath` IN ('.$placeholders.')' );
-			array_unshift($paths, $user); // prepend userid
-			$result = $query->execute( $paths );
-			while($row = $result->fetchRow()) {
-				$propertypath = $row['propertypath'];
-				$propertyname = $row['propertyname'];
-				$propertyvalue = $row['propertyvalue'];
-				$properties[$propertypath][$propertyname] = $propertyvalue;
+			$chunks = array_chunk($paths, 200, false);
+			foreach ($chunks as $pack) {
+				$placeholders = join(',', array_fill(0, count($pack), '?'));
+				$query = OC_DB::prepare( 'SELECT * FROM `*PREFIX*properties` WHERE `userid` = ?' . ' AND `propertypath` IN ('.$placeholders.')' );
+				array_unshift($pack, $user); // prepend userid
+				$result = $query->execute( $pack );
+				while($row = $result->fetchRow()) {
+					$propertypath = $row['propertypath'];
+					$propertyname = $row['propertyname'];
+					$propertyvalue = $row['propertyvalue'];
+					$properties[$propertypath][$propertyname] = $propertyvalue;
+				}
 			}
 		}
 
@@ -204,7 +207,7 @@ class OC_Connector_Sabre_Directory extends OC_Connector_Sabre_Node implements Sa
 	public function getProperties($properties) {
 		$props = parent::getProperties($properties);
 		if (in_array(self::GETETAG_PROPERTYNAME, $properties) && !isset($props[self::GETETAG_PROPERTYNAME])) {
-			$props[self::GETETAG_PROPERTYNAME] 
+			$props[self::GETETAG_PROPERTYNAME]
 				= OC_Connector_Sabre_Node::getETagPropertyForPath($this->path);
 		}
 		return $props;
