@@ -95,7 +95,7 @@ class OC_Util {
 	 */
 	public static function getVersion() {
 		// hint: We only can count up. So the internal version number of ownCloud 4.5 will be 4.90.0. This is not visible to the user
-		return array(4,90,4);
+		return array(4,90,5);
 	}
 
 	/**
@@ -103,7 +103,7 @@ class OC_Util {
 	 * @return string
 	 */
 	public static function getVersionString() {
-		return '4.5.3';
+		return '4.5.4';
 	}
 
 	/**
@@ -575,7 +575,17 @@ class OC_Util {
 		}
 	}
 
-	/*
+	/**
+	 * clear all levels of output buffering
+	 */
+	public static function obEnd(){
+		while (ob_get_level()) {
+			ob_end_clean();
+		}
+	}
+
+
+	/**
 	* @brief Generates a cryptographical secure pseudorandom string
 	* @param Int with the length of the random string
 	* @return String
