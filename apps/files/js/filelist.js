@@ -140,8 +140,8 @@ var FileList={
 		input=$('<input class="filename"/>').val(name);
 		form=$('<form></form>');
 		form.append(input);
-		td.children('a.name').text('');
-		td.children('a.name').append(form);
+		td.children('a.name').hide();
+		td.append(form);
 		input.focus();
 		form.submit(function(event){
 			event.stopPropagation();
@@ -172,13 +172,15 @@ var FileList={
 			} else {
 				var basename=newname;
 			}
-			td.children('a.name').empty();
-			var span=$('<span class="nametext"></span>');
-			span.text(basename);
-			td.children('a.name').append(span);
+			td.find('a.name span.nametext').text(basename);
 			if (newname.indexOf('.') > 0 && tr.data('type') != 'dir') {
-				span.append($('<span class="extension">'+newname.substr(newname.lastIndexOf('.'))+'</span>'));
+				if (td.find('a.name span.extension').length == 0 ) {
+					td.find('a.name span.nametext').append('<span class="extension"></span>');
+				}
+				td.find('a.name span.extension').text(newname.substr(newname.lastIndexOf('.')));
 			}
+			form.remove();
+			td.children('a.name').show();
 			return false;
 		});
 		input.click(function(event){
@@ -284,7 +286,7 @@ var FileList={
 	},
 	finishDelete:function(ready,sync){
 		if(!FileList.deleteCanceled && FileList.deleteFiles){
-			var fileNames=FileList.deleteFiles.join(';');
+			var fileNames=JSON.stringify(FileList.deleteFiles);
 			$.ajax({
 				url: OC.filePath('files', 'ajax', 'delete.php'),
 				async:!sync,
