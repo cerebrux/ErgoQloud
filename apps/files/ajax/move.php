@@ -9,11 +9,12 @@ OCP\JSON::callCheck();
 // Get data
 $dir = stripslashes($_GET["dir"]);
 $file = stripslashes($_GET["file"]);
-$target = stripslashes(urldecode($_GET["target"]));
+$target = stripslashes(rawurldecode($_GET["target"]));
 
 
 if(OC_Files::move($dir, $file, $target, $file)) {
 	OCP\JSON::success(array("data" => array( "dir" => $dir, "files" => $file )));
 } else {
-	OCP\JSON::error(array("data" => array( "message" => "Could not move $file" )));
+	$l=OC_L10N::get('files');
+	OCP\JSON::error(array("data" => array( "message" => $l->t("Could not move %s", array($file)) )));
 }

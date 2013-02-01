@@ -184,7 +184,12 @@ class OC_Files {
 		}
 		OC_Util::obEnd();
 		if($zip or OC_Filesystem::is_readable($filename)) {
-			header('Content-Disposition: attachment; filename="'.basename($filename).'"');
+			if ( preg_match( "/MSIE/", $_SERVER["HTTP_USER_AGENT"] ) ) {
+				header( 'Content-Disposition: attachment; filename="' . rawurlencode( basename($filename) ) . '"' );
+			} else {
+				header( 'Content-Disposition: attachment; filename*=UTF-8\'\'' . rawurlencode( basename($filename) )
+													 . '; filename="' . rawurlencode( basename($filename) ) . '"' );
+			}
 			header('Content-Transfer-Encoding: binary');
 			OC_Response::disableCaching();
 			if($zip) {
@@ -193,6 +198,7 @@ class OC_Files {
 				header('Content-Length: ' . filesize($filename));
 			}else{
 				header('Content-Type: '.OC_Filesystem::getMimeType($filename));
+				header("Content-Length: ".OC_Filesystem::filesize($filename));
 			}
 		}elseif($zip or !OC_Filesystem::file_exists($filename)) {
 			header("HTTP/1.0 404 Not Found");
@@ -204,8 +210,6 @@ class OC_Files {
 			die('403 Forbidden');
 		}
 		if($only_header) {
-			if(!$zip)
-				header("Content-Length: ".OC_Filesystem::filesize($filename));
 			return ;
 		}
 		if($zip) {

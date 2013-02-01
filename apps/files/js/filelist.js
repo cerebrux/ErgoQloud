@@ -147,7 +147,7 @@ var FileList={
 			event.stopPropagation();
 			event.preventDefault();
 			var newname=input.val();
-			if (Files.containsInvalidCharacters(newname)) {
+			if (!Files.isFileNameValid(newname)) {
 				return false;
 			}
 			if (newname != name) {
@@ -182,6 +182,13 @@ var FileList={
 			form.remove();
 			td.children('a.name').show();
 			return false;
+		});
+		input.keyup(function(event){
+			if (event.keyCode == 27) {
+				tr.data('renaming',false);
+				form.remove();
+				td.children('a.name').show();
+			}
 		});
 		input.click(function(event){
 			event.stopPropagation();

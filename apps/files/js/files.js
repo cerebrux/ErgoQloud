@@ -26,17 +26,29 @@ Files={
 		});
 		procesSelection();
 	},
-	containsInvalidCharacters:function (name) {
+	isFileNameValid:function (name) {
+		if (name === '.') {
+			$('#notification').text(t('files', '\'.\' is an invalid file name.'));
+			$('#notification').fadeIn();
+			return false;
+		}
+		if (name.length == 0) {
+			$('#notification').text(t('files', 'File name cannot be empty.'));
+			$('#notification').fadeIn();
+			return false;
+		}
+
+		// check for invalid characters
 		var invalid_characters = ['\\', '/', '<', '>', ':', '"', '|', '?', '*'];
 		for (var i = 0; i < invalid_characters.length; i++) {
 			if (name.indexOf(invalid_characters[i]) != -1) {
 				$('#notification').text(t('files', "Invalid name, '\\', '/', '<', '>', ':', '\"', '|', '?' and '*' are not allowed."));
 				$('#notification').fadeIn();
-				return true;
+				return false;
 			}
 		}
 		$('#notification').fadeOut();
-		return false;
+		return true;
 	}
 };
 $(document).ready(function() {
@@ -245,12 +257,12 @@ $(document).ready(function() {
 						}
 					});
 				}else{
-                    var dropTarget = $(e.originalEvent.target).closest('tr');
-                    if(dropTarget && dropTarget.attr('data-type') === 'dir') { // drag&drop upload to folder
-                        var dirName = dropTarget.attr('data-file')
-                    }
+					var dropTarget = $(e.originalEvent.target).closest('tr');
+					if(dropTarget && dropTarget.attr('data-type') === 'dir') { // drag&drop upload to folder
+						var dirName = dropTarget.attr('data-file')
+					}
 
-                    var date=new Date();
+					var date=new Date();
 					if(files){
 						for(var i=0;i<files.length;i++){
 							if(files[i].size>0){
@@ -303,9 +315,9 @@ $(document).ready(function() {
 								var jqXHR =  $('.file_upload_start').fileupload('send', {files: files[i],
 										formData: function(form) {
 											var formArray = form.serializeArray();
-                                            // array index 0 contains the max files size
-                                            // array index 1 contains the request token
-                                            // array index 2 contains the directory
+											// array index 0 contains the max files size
+											// array index 1 contains the request token
+											// array index 2 contains the directory
 											formArray[2]['value'] = dirName;
 											return formArray;
 										}}).success(function(result, textStatus, jqXHR) {
@@ -316,13 +328,13 @@ $(document).ready(function() {
 												$('#notification').fadeIn();
 											}
 											var file=response[0];
-                                            // TODO: this doesn't work if the file name has been changed server side
+											// TODO: this doesn't work if the file name has been changed server side
 											delete uploadingFiles[dirName][file.name];
-                                            if ($.assocArraySize(uploadingFiles[dirName]) == 0) {
-                                                delete uploadingFiles[dirName];
-                                            }
+											if ($.assocArraySize(uploadingFiles[dirName]) == 0) {
+												delete uploadingFiles[dirName];
+											}
 
-                                            var uploadtext = $('tr').filterAttr('data-type', 'dir').filterAttr('data-file', dirName).find('.uploadtext')
+											var uploadtext = $('tr').filterAttr('data-type', 'dir').filterAttr('data-file', dirName).find('.uploadtext')
 											var currentUploads = parseInt(uploadtext.attr('currentUploads'));
 											currentUploads -= 1;
 											uploadtext.attr('currentUploads', currentUploads);
@@ -445,7 +457,7 @@ $(document).ready(function() {
 		// http://stackoverflow.com/a/6700/11236
 		var size = 0, key;
 		for (key in obj) {
-		    if (obj.hasOwnProperty(key)) size++;
+			if (obj.hasOwnProperty(key)) size++;
 		}
 		return size;
 	};
@@ -489,7 +501,7 @@ $(document).ready(function() {
 		$('button.file_upload_filename').removeClass('active');
 		$('#new li').each(function(i,element){
 			if($(element).children('p').length==0){
-				$(element).children('input').remove();
+				$(element).children('form').remove();
 				$(element).append('<p>'+$(element).data('text')+'</p>');
 			}
 		});
@@ -509,7 +521,7 @@ $(document).ready(function() {
 
 		$('#new li').each(function(i,element){
 			if($(element).children('p').length==0){
-				$(element).children('input').remove();
+				$(element).children('form').remove();
 				$(element).append('<p>'+$(element).data('text')+'</p>');
 			}
 		});
@@ -518,20 +530,29 @@ $(document).ready(function() {
 		var text=$(this).children('p').text();
 		$(this).data('text',text);
 		$(this).children('p').remove();
+		var form=$('<form></form>');
 		var input=$('<input>');
-		$(this).append(input);
+		form.append(input);
+		$(this).append(form);
 		input.focus();
-		input.change(function(){
-            if (type != 'web' && Files.containsInvalidCharacters($(this).val())) {
-                return;
-            } else if( type == 'folder' && $('#dir').val() == '/' && $(this).val() == 'Shared') {
-                $('#notification').text(t('files','Invalid folder name. Usage of "Shared" is reserved by Owncloud'));
-                $('#notification').fadeIn();
-                return;
-            }
-            var name = getUniqueName($(this).val());
-			if (name != $(this).val()) {
-				FileList.checkName(name, $(this).val(), true);
+		form.submit(function(event){
+			event.stopPropagation();
+			event.preventDefault();
+			var newname=input.val();
+			if(type == 'web' && newname.length == 0){
+				$('#notification').text(t('files', "URL cannot be empty."));
+				$('#notification').fadeIn();
+				return false;
+			} else if (type != 'web' && !Files.isFileNameValid(newname)) {
+				return false;
+			} else if( type == 'folder' && $('#dir').val() == '/' && newname == 'Shared') {
+				$('#notification').text(t('files','Invalid folder name. Usage of "Shared" is reserved by Owncloud'));
+				$('#notification').fadeIn();
+				return false;
+			}
+			var name = getUniqueName(newname);
+			if (newname != name) {
+				FileList.checkName(name, newname, true);
 				var hidden = true;
 			} else {
 				var hidden = false;
@@ -575,7 +596,7 @@ $(document).ready(function() {
 					break;
 				case 'web':
 					if(name.substr(0,8)!='https://' && name.substr(0,7)!='http://'){
-						name='http://'.name;
+						name='http://'+name;
 					}
 					var localName=name;
 					if(localName.substr(localName.length-1,1)=='/'){//strip /
@@ -614,8 +635,8 @@ $(document).ready(function() {
 					});
 					break;
 			}
-			var li=$(this).parent();
-			$(this).remove();
+			var li=form.parent();
+			form.remove();
 			li.append('<p>'+li.data('text')+'</p>');
 			$('#new>a').click();
 		});
@@ -870,21 +891,20 @@ function relative_modified_date(timestamp) {
 	var diffminutes = Math.round(timediff/60);
 	var diffhours = Math.round(diffminutes/60);
 	var diffdays = Math.round(diffhours/24);
-	var diffmonths = Math.round(diffdays/31);
-	var diffyears = Math.round(diffdays/365);
-	if(timediff < 60) { return t('files','seconds ago'); }
-	else if(timediff < 120) { return '1 '+t('files','minute ago'); }
-	else if(timediff < 3600) { return diffminutes+' '+t('files','minutes ago'); }
+	//var diffmonths = Math.round(diffdays/31);
+	//var diffyears = Math.round(diffdays/365);
+	if(timediff < 60) { return t('lib','seconds ago'); }
+	else if(timediff < 120) { return t('lib','1 minute ago'); }
+	else if(timediff < 3600) { return t('lib','%d minutes ago',diffminutes); }
 	//else if($timediff < 7200) { return '1 hour ago'; }
 	//else if($timediff < 86400) { return $diffhours.' hours ago'; }
-	else if(timediff < 86400) { return t('files','today'); }
-	else if(timediff < 172800) { return t('files','yesterday'); }
-	else if(timediff < 2678400) { return diffdays+' '+t('files','days ago'); }
-	else if(timediff < 5184000) { return t('files','last month'); }
-	//else if($timediff < 31556926) { return $diffmonths.' months ago'; }
-	else if(timediff < 31556926) { return t('files','months ago'); }
-	else if(timediff < 63113852) { return t('files','last year'); }
-	else { return diffyears+' '+t('files','years ago'); }
+	else if(timediff < 86400) { return t('lib','today'); }
+	else if(timediff < 172800) { return t('lib','yesterday'); }
+	else if(timediff < 2678400) { return t('lib','%d days ago',diffdays); }
+	else if(timediff < 5184000) { return t('lib','last month'); }
+	else if(timediff < 31556926) { return t('lib','months ago'); }
+	else if(timediff < 63113852) { return t('lib','last year'); }
+	else { return t('lib','years ago'); }
 }
 
 function getMimeIcon(mime, ready){

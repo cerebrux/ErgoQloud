@@ -91,13 +91,7 @@ if (isset($_POST['action']) && isset($_POST['itemType']) && isset($_POST['itemSo
 				$text = (string)$l->t('User %s shared the folder "%s" with you. It is available for download here: %s', array($user, $file, $link));
 			}
 
-			// handle localhost installations
-			$server_host = OCP\Util::getServerHost();
-			if ($server_host === 'localhost') {
-				$server_host = "example.com";
-			}
-
-			$default_from = 'sharing-noreply@' . $server_host;
+			$default_from = OCP\Util::getDefaultEmailAddress('sharing-noreply');
 			$from_address = OCP\Config::getUserValue($user, 'settings', 'email', $default_from);
 
 			// send it out now
@@ -105,7 +99,7 @@ if (isset($_POST['action']) && isset($_POST['itemType']) && isset($_POST['itemSo
 				OCP\Util::sendMail($to_address, $to_address, $subject, $text, $from_address, $user);
 				OCP\JSON::success();
 			} catch (Exception $exception) {
-				OCP\JSON::error(array('data' => array('message' => $exception->getMessage())));
+				OCP\JSON::error(array('data' => array('message' => OC_Util::sanitizeHTML($exception->getMessage()))));
 			}
 			break;
 	}
