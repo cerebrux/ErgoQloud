@@ -200,6 +200,11 @@ class OC{
 				header("Location: $url");
 				exit();
 			}
+		} else {
+			// Invalidate HSTS headers
+			if (OC_Request::serverProtocol() === 'https') {
+				header('Strict-Transport-Security: max-age=0');
+			}
 		}
 	}
 
@@ -266,7 +271,22 @@ class OC{
 		// set the session name to the instance id - which is unique
 		session_name(OC_Util::getInstanceId());
 
-		session_start();
+		// if session cant be started break with http 500 error
+		if (session_start() === false){
+			OC_Log::write('core', 'Session could not be initialized', 
+				OC_Log::ERROR);
+			
+			header('HTTP/1.1 500 Internal Server Error');
+			OC_Util::addStyle("styles");
+			$error = 'Session could not be initialized. Please contact your ';
+			$error .= 'system administrator';
+
+			$tmpl = new OC_Template('', 'error', 'guest');
+			$tmpl->assign('errors', array(1 => array('error' => $error)));
+			$tmpl->printPage();
+
+			exit();
+		}
 	}
 
 	public static function init() {
@@ -384,6 +404,10 @@ class OC{
 		OC_Hook::connect('OC_Filesystem', 'write', 'OC_Filesystem', 'isBlacklisted');
 		OC_Hook::connect('OC_Filesystem', 'rename', 'OC_Filesystem', 'isBlacklisted');
 
+		// register subadmin hooks
+		OC_Hook::connect('OC_User', 'post_deleteUser', 'OC_SubAdmin', 'post_deleteUser');
+		OC_Hook::connect('OC_User', 'post_deleteGroup', 'OC_SubAdmin', 'post_deleteGroup');
+		
 		//make sure temporary files are cleaned up
 		register_shutdown_function(array('OC_Helper','cleanTmp'));
 

@@ -539,7 +539,7 @@ class Share {
 				$collectionTypes[] = $type;
 			}
 		}
-		if (!self::getBackend($itemType) instanceof Share_Backend_Collection) {
+		if (!self::getBackend($itemType) instanceof Share_Backend_Collection || $itemType != 'folder') {
 			unset($collectionTypes[0]);
 		}
 		// Return array if collections were found or the item type is a collection itself - collections can be inside collections
@@ -724,6 +724,7 @@ class Share {
 		}
 		$items = array();
 		$targets = array();
+		$switchedItems = array();
 		while ($row = $result->fetchRow()) {
 			// Filter out duplicate group shares for users with unique targets
 			if ($row['share_type'] == self::$shareTypeGroupUserUnique && isset($items[$row['parent']])) {
@@ -748,6 +749,7 @@ class Share {
 						// Switch ids if sharing permission is granted on only one share to ensure correct parent is used if resharing
 						if (~(int)$items[$id]['permissions'] & self::PERMISSION_SHARE && (int)$row['permissions'] & self::PERMISSION_SHARE) {
 							$items[$row['id']] = $items[$id];
+							$switchedItems[$id] = $row['id'];
 							unset($items[$id]);
 							$id = $row['id'];
 						}
@@ -844,7 +846,11 @@ class Share {
 						}
 					}
 					// Remove collection item
-					unset($items[$row['id']]);
+					$toRemove = $row['id'];
+					if (array_key_exists($toRemove, $switchedItems)) {
+						$toRemove = $switchedItems[$toRemove];
+					}
+					unset($items[$toRemove]);
 				}
 			}
 			if (!empty($collectionItems)) {

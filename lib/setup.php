@@ -199,7 +199,7 @@ class OC_Setup {
 					//add prefix to the postgresql user name to prevent collisions
 					$dbusername='oc_'.$username;
 					//create a new password so we don't need to store the admin config in the config file
-					$dbpassword=md5(time());
+					$dbpassword=md5(OC_Util::generate_random_bytes(30));
 
 					self::pg_createDBUser($dbusername, $dbpassword, $connection);
 
@@ -386,6 +386,8 @@ class OC_Setup {
 			if(count($error) == 0) {
 				OC_Appconfig::setValue('core', 'installedat',microtime(true));
 				OC_Appconfig::setValue('core', 'lastupdatedat',microtime(true));
+				OC_AppConfig::setValue('core', 'remote_core.css', '/core/minimizer.php');
+				OC_AppConfig::setValue('core', 'remote_core.js', '/core/minimizer.php');
 
 				OC_Group::createGroup('admin');
 				OC_Group::addToGroup($username, 'admin');
@@ -449,9 +451,11 @@ class OC_Setup {
 				$entry.='Offending command was: '.$query.'<br />';
 				echo($entry);
 			}
+			else {
+				$query = "REVOKE ALL PRIVILEGES ON DATABASE \"$e_name\" FROM PUBLIC";
+				$result = pg_query($connection, $query);
+			}
 		}
-		$query = "REVOKE ALL PRIVILEGES ON DATABASE \"$e_name\" FROM PUBLIC";
-		$result = pg_query($connection, $query);
 	}
 
 	private static function pg_createDBUser($name,$password,$connection) {

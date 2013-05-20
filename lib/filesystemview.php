@@ -326,7 +326,9 @@ class OC_FilesystemView {
 		$postFix2=(substr($path2,-1,1)==='/')?'/':'';
 		$absolutePath1 = OC_Filesystem::normalizePath($this->getAbsolutePath($path1));
 		$absolutePath2 = OC_Filesystem::normalizePath($this->getAbsolutePath($path2));
-		if(OC_FileProxy::runPreProxies('rename', $absolutePath1, $absolutePath2) and OC_Filesystem::isValidPath($path2)) {
+		if(OC_FileProxy::runPreProxies('rename', $absolutePath1, $absolutePath2)
+				and OC_Filesystem::isValidPath($path1)
+				and OC_Filesystem::isValidPath($path2)) {
 			$path1 = $this->getRelativePath($absolutePath1);
 			$path2 = $this->getRelativePath($absolutePath2);
 
@@ -378,7 +380,9 @@ class OC_FilesystemView {
 		$postFix2=(substr($path2,-1,1)==='/')?'/':'';
 		$absolutePath1 = OC_Filesystem::normalizePath($this->getAbsolutePath($path1));
 		$absolutePath2 = OC_Filesystem::normalizePath($this->getAbsolutePath($path2));
-		if(OC_FileProxy::runPreProxies('copy', $absolutePath1, $absolutePath2) and OC_Filesystem::isValidPath($path2)) {
+		if(OC_FileProxy::runPreProxies('copy', $absolutePath1, $absolutePath2)
+				and OC_Filesystem::isValidPath($path1)
+				and OC_Filesystem::isValidPath($path2)) {
 			$path1 = $this->getRelativePath($absolutePath1);
 			$path2 = $this->getRelativePath($absolutePath2);
 
@@ -517,11 +521,7 @@ class OC_FilesystemView {
 		if(OC_Filesystem::isValidPath($path)) {
 			$source = $this->fopen($path, 'r');
 			if($source) {
-				$extension='';
-				$extOffset=strpos($path, '.');
-				if($extOffset !== false) {
-					$extension=substr($path, strrpos($path,'.'));
-				}
+				$extension = pathinfo($path, PATHINFO_EXTENSION);
 				$tmpFile = OC_Helper::tmpFile($extension);
 				file_put_contents($tmpFile, $source);
 				return $tmpFile;

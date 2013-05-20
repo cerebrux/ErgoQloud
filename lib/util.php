@@ -95,7 +95,7 @@ class OC_Util {
 	 */
 	public static function getVersion() {
 		// hint: We only can count up. So the internal version number of ownCloud 4.5 will be 4.90.0. This is not visible to the user
-		return array(4,90,7);
+		return array(4,90,12);
 	}
 
 	/**
@@ -103,7 +103,7 @@ class OC_Util {
 	 * @return string
 	 */
 	public static function getVersionString() {
-		return '4.5.6';
+		return '4.5.11';
 	}
 
 	/**
@@ -342,6 +342,7 @@ class OC_Util {
 			$redirect_url = $_SERVER['REQUEST_URI'];
 		}
 		$parameters['redirect_url'] = $redirect_url;
+		$parameters['alt_login'] = OC_App::getAlternativeLogIns();
 		OC_Template::printGuestPage("", "login", $parameters);
 	}
 

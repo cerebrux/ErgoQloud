@@ -148,6 +148,7 @@ class USER_LDAP extends lib\Access implements \OCP\UserInterface {
 		}
 
 		$this->connection->writeToCache('userExists'.$uid, true);
+		$this->updateQuota($dn);
 		return true;
 	}
 
@@ -168,6 +169,10 @@ class USER_LDAP extends lib\Access implements \OCP\UserInterface {
 	* @return boolean
 	*/
 	private function determineHomeDir($uid) {
+		$cacheKey = 'getHome'.$uid;
+		if($this->connection->isCached($cacheKey)) {
+			return $this->connection->getFromCache($cacheKey);
+		}
 		if(strpos($this->connection->homeFolderNamingRule, 'attr:') === 0) {
 			$attr = substr($this->connection->homeFolderNamingRule, strlen('attr:'));
 			$homedir = $this->readAttribute($this->username2dn($uid), $attr);
@@ -184,15 +189,14 @@ class USER_LDAP extends lib\Access implements \OCP\UserInterface {
 					$homedir = \OCP\Config::getSystemValue( "datadirectory", \OC::$SERVERROOT."/data" ) . '/' . $homedir[0];
 				}
 
-				\OCP\Config::setUserValue($uid, 'user_ldap', 'homedir', $homedir);
+				$this->connection->writeToCache($cacheKey, $homedir);
 				return $homedir;
 			}
 		}
 
 		//fallback and default: username
-		$homedir = \OCP\Config::getSystemValue( "datadirectory", \OC::$SERVERROOT."/data" ) . '/' . $uid;
-		\OCP\Config::setUserValue($uid, 'user_ldap', 'homedir', $homedir);
-		return $homedir;
+		$this->connection->writeToCache($cacheKey, false);
+		return false;
 	}
 
 	/**
@@ -202,11 +206,7 @@ class USER_LDAP extends lib\Access implements \OCP\UserInterface {
 	*/
 	public function getHome($uid) {
 		if($this->userExists($uid)) {
-			$homedir = \OCP\Config::getUserValue($uid, 'user_ldap', 'homedir', false);
-			if(!$homedir) {
-				$homedir = $this->determineHomeDir($uid);
-			}
-			return $homedir;
+			return $this->determineHomeDir($uid);
 		}
 		return false;
 	}
